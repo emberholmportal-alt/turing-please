@@ -72,6 +72,28 @@
   .stamp.rug{ right:20px; color:var(--rug); border-color:var(--rug); transform:rotate(16deg); }
   .hint{ position:absolute; z-index:3; bottom:158px; left:0; right:0; text-align:center; font-family:var(--mono);
     font-size:11px; letter-spacing:.1em; color:rgba(255,255,255,.7); pointer-events:none; }
+  /* ---------- galería multi-foto ---------- */
+  .bars{ position:absolute; top:9px; left:10px; right:10px; z-index:6; display:flex; gap:5px; }
+  .bars i{ flex:1; height:4px; border-radius:2px; background:rgba(255,255,255,.32); transition:background .15s; }
+  .bars i.on{ background:#fff; }
+  .photos{ position:absolute; inset:0; }
+  .slide{ position:absolute; inset:0; opacity:0; pointer-events:none; transition:opacity .16s; }
+  .slide.on{ opacity:1; }
+  .slide0{ display:flex; align-items:center; justify-content:center; background:radial-gradient(130% 130% at 50% 26%, var(--c1,#2a0e46), #120522); }
+  .slideInfo{ padding:60px 22px 158px; overflow:auto; color:#fff;
+    background:linear-gradient(165deg,#241146,#0f0620); }
+  .slideInfo h3{ font-family:var(--disp); font-weight:700; font-size:13px; letter-spacing:.16em; color:var(--pump); margin:0 0 14px; }
+  .metric{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 0; border-bottom:1px solid rgba(255,255,255,.1); }
+  .metric .ml{ font-family:var(--mono); font-size:11px; letter-spacing:.06em; color:rgba(255,255,255,.6); text-transform:uppercase; }
+  .metric .mv{ font-family:var(--disp); font-weight:600; font-size:20px; }
+  .metric .mv.good{ color:#3cea86; } .metric .mv.bad{ color:#ff6b86; }
+  .distbar{ position:relative; height:14px; border-radius:7px; background:rgba(255,255,255,.12); margin:10px 0 4px; overflow:hidden; }
+  .distbar span{ position:absolute; left:0; top:0; bottom:0; border-radius:7px; }
+  .distbar .mk{ position:absolute; top:-3px; bottom:-3px; width:2px; background:#ffd166; left:20%; }
+  .distcap{ font-family:var(--mono); font-size:10px; color:rgba(255,255,255,.55); }
+  .quote{ font-size:15px; line-height:1.4; color:#e9e2ff; background:rgba(255,255,255,.06); border-radius:14px; padding:12px 14px; margin-top:4px; }
+  .socials{ display:flex; gap:8px; margin-top:12px; }
+  .socials span{ flex:1; text-align:center; font-family:var(--mono); font-size:12px; padding:9px; border-radius:12px; background:rgba(255,255,255,.08); color:#cfc6ee; }
 
   /* ---------- actions ---------- */
   .actions{ display:flex; align-items:center; justify-content:center; gap:30px; padding:14px 0 22px; }
@@ -143,7 +165,7 @@
     <div class="rules">
       <div><span class="k">→ swipe right / 🚀</span> &nbsp;PUMP it (list the coin)</div>
       <div><span class="k">← swipe left / 💀</span> &nbsp;RUG it (recycle the coin)</div>
-      <div><span class="k">🔒 background check</span> &nbsp;reveals hidden data, costs PUMPCOIN</div>
+      <div><span class="k">👆 tap the card</span> &nbsp;flip through its photos: tokenomics, distribution, dev</div>
       <div>Match the day's policy. 3 wrong calls and you're NGMI.</div>
     </div>
     <button class="cta" id="startBtn">START SWIPING</button>
@@ -224,6 +246,7 @@ const START_COIN = 40, CHECK_COST = 3, REWARD = 6, PENALTY = 8, MAX_STRIKES = 3;
 let idx=0, coin=START_COIN, strikes=0, listed=0, right=0, done=0, checked=false, locked=true, topCard=null;
 
 const $ = id => document.getElementById(id);
+function hashStr(s){ let h=2166136261; s=""+s; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619);} return h>>>0; }
 function hashColor(s){ let h=0; for(const c of s) h=(h*31+c.charCodeAt(0))>>>0; return `hsl(${h%360} 70% 55%)`; }
 
 function setHUD(){
@@ -240,23 +263,49 @@ function renderCard(c, isTop){
   const logo = c.logo
     ? `<img class="logo" src="${c.logo}" alt="" onerror="this.outerHTML='<div class=\\'logo badge\\' style=\\'background:${col}\\'>${c.t[0]}</div>'">`
     : `<div class="logo badge" style="background:${col}">${c.t[0]}</div>`;
+  const devShown = c.hide ? "🔒" : c.dev+"%";
+  const h = hashStr(c.t);
+  const tg = 3+(h%40), x = 5+((h>>>3)%400), prior = 1+(h%4), rug = (c.dev>20||!c.liq||c.mint)? (1+(h%2)) : 0;
+  const top10 = Math.min(96, (parseInt(c.top)||4) + 12 + (h>>>5)%25);
+  const m = (l,v,cls)=>`<div class="metric"><span class="ml">${l}</span><span class="mv ${cls||''}">${v}</span></div>`;
+  // slides
+  const s0 = `<div class="slide slide0 on" style="--c1:${col}">${c.logo?"":'<div class="fresh">FRESH LAUNCH</div>'}${logo}</div>`;
+  const s1 = `<div class="slide slideInfo"><h3>TOKENOMICS</h3>
+      ${m("holders", c.holders)}
+      ${m("age", c.age)}
+      ${m("liquidity", c.liq?"LP locked":"LP OPEN", c.liq?"good":"bad")}
+      ${m("mint authority", c.mint?"LIVE":"renounced", c.mint?"bad":"good")}</div>`;
+  const s2 = `<div class="slide slideInfo"><h3>DISTRIBUTION</h3>
+      ${m("dev wallet", c.dev+"%", c.dev>20?"bad":"good")}
+      <div class="distbar"><span style="width:${Math.min(100,c.dev)}%;background:${c.dev>20?'var(--rug)':'var(--pump)'}"></span><div class="mk"></div></div>
+      <div class="distcap">policy line = 20% max</div>
+      ${m("top holder", c.top||"—", (parseInt(c.top)||0)>15?"bad":"")}
+      ${m("top 10 est.", top10+"%")}</div>`;
+  const s3 = `<div class="slide slideInfo"><h3>DEV & VIBES</h3>
+      ${m("identity", c.dox?"doxxed":"anon", c.dox?"good":"bad")}
+      ${m("prior launches", prior+" ("+rug+" rugged)", rug>0?"bad":"good")}
+      <div class="quote">"${c.bio}"</div>
+      <div class="socials"><span>TG ${tg}k</span><span>X ${x>=100?(x/10|0)/10+"k":x+"k"}</span></div></div>`;
   el.innerHTML = `
-    <div class="photo" style="--c1:${col}">
-      ${c.logo?"":'<div class="fresh">FRESH LAUNCH</div>'}
-      ${logo}
-      <div class="stamp pump">PUMP</div>
-      <div class="stamp rug">RUG</div>
-      <div class="info">
-        <div class="name"><span class="tick">$${c.t}</span><span class="nm">${c.n} · ${c.age}</span></div>
-        <div class="badges">
-          <span class="pill ${c.dox?'dox':'anon'}">${c.dox?'\u2714 doxxed':'\u2716 anon'}</span>
-          <span class="pill ${c.dev<=20?'':'warn'}">\uD83E\uDDD1\u200D\uD83D\uDCBB dev ${c.dev}%</span>
-          <span class="pill ${c.liq?'':'warn'}">\uD83D\uDCA7 ${c.liq?'LP locked':'LP open'}</span>
-          <span class="pill">\uD83D\uDC65 ${c.holders}</span>
-        </div>
+    <div class="bars"><i class="on"></i><i></i><i></i><i></i></div>
+    <div class="photos">${s0}${s1}${s2}${s3}</div>
+    <div class="stamp pump">PUMP</div>
+    <div class="stamp rug">RUG</div>
+    <div class="info">
+      <div class="name"><span class="tick">$${c.t}</span><span class="nm">${c.n} · ${c.age}</span></div>
+      <div class="badges">
+        <span class="pill ${c.dox?'dox':'anon'}">${c.dox?'✔ doxxed':'✖ anon'}</span>
+        <span class="pill ${c.hide?'':(c.dev<=20?'':'warn')}">dev ${devShown}</span>
+        <span class="pill ${c.liq?'':'warn'}">💧 ${c.liq?'LP locked':'LP open'}</span>
       </div>
     </div>`;
+  el._photo = 0; el._np = 4;
   return el;
+}
+function gotoPhoto(el, i){
+  if(!el) return; i=Math.max(0, Math.min((el._np||1)-1, i)); el._photo=i;
+  el.querySelectorAll(".slide").forEach((sl,k)=>sl.classList.toggle("on", k===i));
+  el.querySelectorAll(".bars i").forEach((b,k)=>b.classList.toggle("on", k<=i));
 }
 
 function runCheck(c, el, btn){
@@ -315,17 +364,20 @@ function attachDrag(card){
     p.style.opacity = dx>0 ? Math.min(1, dx/90) : 0;
     r.style.opacity = dx<0 ? Math.min(1, -dx/90) : 0;
   });
-  const end = ()=>{
+  const end = (e)=>{
     if(!dragging) return; dragging=false;
     card.style.transition="transform .32s cubic-bezier(.25,.9,.3,1)";
     const TH=90;
     if(dx>TH) fling("PUMP");
     else if(dx<-TH) fling("RUG");
-    else { card.style.transform=""; card.querySelectorAll(".stamp").forEach(s=>s.style.opacity=0); }
+    else {
+      card.style.transform=""; card.querySelectorAll(".stamp").forEach(s=>s.style.opacity=0);
+      if(Math.abs(dx)<8 && e){ const r=card.getBoundingClientRect(); const left = e.clientX < r.left + r.width*0.4; gotoPhoto(card, card._photo + (left?-1:1)); }
+    }
     dx=0;
   };
   card.addEventListener("pointerup", end);
-  card.addEventListener("pointercancel", end);
+  card.addEventListener("pointercancel", ()=>end());
 }
 
 function fling(action){
