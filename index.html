@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>TURING, PLEASE</title>
+<title>PUMP, PLEASE</title>
 <style>
   /* ====== TIPOGRAFÍA / TOKENS ======
      Estética: puesto burocrático de frontera + terminal CRT fosforado.
@@ -17,6 +17,8 @@
     --danger:#ff4d4d;        /* rechazo / multa */
     --steel:#3a4650;
     --steel-lo:#1a2228;
+    --sol:#9945ff;           /* violeta Solana */
+    --sol2:#14f195;          /* verde Solana */
     --paper:#d8cdb0;         /* dossier */
     --paper-ink:#2a2620;
     --mono: ui-monospace, "SFMono-Regular", "Menlo", "Consolas", "Courier New", monospace;
@@ -98,19 +100,26 @@
     display:flex; gap:8px; align-items:stretch;
     background:linear-gradient(#0d1114 0%, #060809 100%); border-top:1px solid var(--steel);
     box-shadow:0 -6px 20px rgba(0,0,0,.5); }
-  .stamp{ flex:1; border:none; border-radius:10px; padding:16px 8px; cursor:pointer;
-    font-family:var(--stencil); font-weight:800; letter-spacing:.14em; font-size:17px;
-    display:flex; flex-direction:column; align-items:center; gap:3px; position:relative; overflow:hidden;
-    transition:transform .06s, filter .1s; }
-  .stamp:active{ transform:translateY(2px) scale(.985); }
-  .stamp small{ font-size:9px; letter-spacing:.1em; opacity:.7; font-family:var(--mono); font-weight:600; }
-  #human{ background:linear-gradient(#1c6b3a,#124a28); color:#d6ffe2; box-shadow:0 4px 0 #0b3018, inset 0 1px 0 rgba(255,255,255,.15); }
-  #bot{ background:linear-gradient(#8a1414,#5c0d0d); color:#ffdede; box-shadow:0 4px 0 #400808, inset 0 1px 0 rgba(255,255,255,.12); }
-  .tools{ flex:0 0 74px; display:flex; flex-direction:column; gap:6px; }
-  .tools button{ flex:1; background:#1a2228; color:var(--amber); border:1px solid var(--steel); border-radius:9px;
-    font-family:var(--stencil); font-weight:800; font-size:11px; letter-spacing:.06em; cursor:pointer; }
-  #docsBtn{ color:#9fd0ff; }
+  /* botones circulares PUMP (verde) / RUG (rojo) */
+  .stamp{ flex:0 0 auto; width:min(27vw,124px); height:min(27vw,124px); border:none; border-radius:50%; cursor:pointer;
+    font-family:var(--stencil); font-weight:800; letter-spacing:.06em; font-size:clamp(18px,6vw,26px);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; position:relative; overflow:hidden;
+    transition:transform .07s, filter .1s; }
+  .stamp:active{ transform:translateY(3px) scale(.94); }
+  .stamp::after{ content:""; position:absolute; inset:0; border-radius:50%; border:2px solid rgba(255,255,255,.18); }
+  .stamp small{ font-size:9px; letter-spacing:.08em; opacity:.8; font-family:var(--mono); font-weight:600; }
+  #human{ background:radial-gradient(circle at 38% 30%, #3df089, #12934a 68%, #0a5c2e); color:#eafff1;
+    box-shadow:0 6px 0 #073d1e, 0 0 26px rgba(40,220,120,.4), inset 0 2px 8px rgba(255,255,255,.3); }
+  #bot{ background:radial-gradient(circle at 38% 30%, #ff6a6a, #c31818 68%, #7a0e0e); color:#ffeded;
+    box-shadow:0 6px 0 #4d0808, 0 0 26px rgba(255,60,60,.4), inset 0 2px 8px rgba(255,255,255,.25); }
+  .tools{ flex:1 1 auto; max-width:170px; margin:0 auto; display:flex; flex-direction:column; gap:8px; }
+  .tools button{ flex:1; background:#1a1430; color:var(--sol2); border:1px solid #3a2f5a; border-radius:9px;
+    font-family:var(--stencil); font-weight:800; font-size:12px; letter-spacing:.06em; cursor:pointer; }
+  #docsBtn{ color:#c9a0ff; }
   .stamp:disabled, .tools button:disabled{ filter:grayscale(.7) brightness(.6); pointer-events:none; }
+  #confetti{ position:fixed; inset:0; z-index:45; pointer-events:none; }
+  .title .accent{ color:var(--sol2); text-shadow:0 0 18px rgba(20,241,149,.4); }
+  .accent2{ color:var(--sol2); font-weight:800; }
 
   /* ====== REGLAMENTO ====== */
   #book{ position:fixed; inset:0; z-index:40; background:rgba(3,5,6,.82); backdrop-filter:blur(3px);
@@ -216,13 +225,13 @@
 <!-- HUD -->
 <div id="hud" class="hidden">
   <div class="stat day"><div class="lbl">Day</div><div class="val" id="hDay">1</div></div>
-  <div class="stat"><div class="lbl">Cleared</div><div class="val" id="hDone">0/6</div></div>
-  <div class="stat money"><div class="lbl">Balance</div><div class="val" id="hMoney">$25</div></div>
+  <div class="stat"><div class="lbl">Listed</div><div class="val" id="hDone">0/6</div></div>
+  <div class="stat money"><div class="lbl">Silicon</div><div class="val" id="hMoney">◈40</div></div>
   <div class="stat strikes"><div class="lbl">Strikes</div><div class="val" id="hStrikes">○○○</div></div>
 </div>
-<div id="ticker" class="hidden"><div class="tag">WIRE</div><div class="track" id="tickerTxt">…</div></div>
+<div id="ticker" class="hidden"><div class="tag">CT</div><div class="track" id="tickerTxt">…</div></div>
 <button id="mute" class="hidden">♪</button>
-<div id="docBar"><span id="docBarTxt">INSPECTING ID</span></div>
+<div id="docBar"><span id="docBarTxt">READING THE SHEET</span></div>
 
 <!-- Escena de juego -->
 <div id="patience" class="hidden"><div id="patienceFill"></div></div>
@@ -231,20 +240,20 @@
   <div id="log"></div>
 </div>
 
-<div id="nudge">Tap 🪪 DOCS to inspect their ID</div>
+<div id="nudge">Tap 📊 DATA to read the on-chain sheet</div>
 <div id="dock" class="hidden">
-  <button id="human" class="stamp">HUMAN<small>grant access</small></button>
+  <button id="human" class="stamp">PUMP<small>list it</small></button>
   <div class="tools">
-    <button id="rulesBtn">▤ RULES</button>
-    <button id="docsBtn">🪪 DOCS</button>
+    <button id="rulesBtn">▤ POLICY</button>
+    <button id="docsBtn">📊 DATA</button>
   </div>
-  <button id="bot" class="stamp">BOT<small>deny access</small></button>
+  <button id="bot" class="stamp">RUG<small>recycle it</small></button>
 </div>
 
 <!-- Reglamento -->
 <div id="book"><div class="bookInner">
-  <h2>Screening Directive</h2>
-  <div class="sub" id="bookSub">Humanity-as-a-Service · Verification Desk</div>
+  <h2>Listing Directive</h2>
+  <div class="sub" id="bookSub">Solana Listing Desk · Machine Policy</div>
   <div id="ruleList"></div>
   <button class="bookClose" id="bookClose">CLOSE MANUAL</button>
 </div></div>
@@ -255,9 +264,9 @@
 
 <!-- Menú -->
 <div id="menu" class="screen open">
-  <div class="kicker">Humanity-as-a-Service</div>
-  <div class="title">TURING,<br><span class="accent">PLEASE</span></div>
-  <p class="lede">The internet is 99% bots. You work the last verification desk. Read each applicant's screening feed, check it against today's <b>directive</b>, and stamp <b>HUMAN</b> or <b>BOT</b>.<br><br>The bots get better every day. So do the rules.</p>
+  <div class="kicker">Humanity-as-a-Service · Solana</div>
+  <div class="title">PUMP,<br><span class="accent">PLEASE</span></div>
+  <p class="lede">You're the last human in the loop of a machine-run casino chain. At the final listing desk, every memecoin sends a rep. Read the pitch, but decide on the <b>on-chain sheet</b>. <b class="accent2">PUMP</b> the clean ones. <b>RUG</b> the ones that violate today's directive — their liquidity melts into silicon for the machine.<br><br>Feed the machine. Don't get reassigned to the mines.</p>
   <button class="cta" id="startBtn" disabled>LOADING…</button>
   <p class="muted" id="soundNote">tap to enable sound · works best in portrait</p>
 </div>
@@ -272,11 +281,13 @@
 <div id="endScreen" class="screen">
   <div class="kicker" id="endKicker">Shift terminated</div>
   <div class="title" id="endTitle">GAME<br>OVER</div>
+  <div class="grade" id="endGrade"></div>
   <p class="lede" id="endLede"></p>
   <button class="cta" id="restartBtn">CLOCK IN AGAIN</button>
 </div>
 
-<div id="boot"><div id="bootSpin"></div><div id="bootMsg">BOOTING DESK…</div></div>
+<canvas id="confetti"></canvas>
+<div id="boot"><div id="bootSpin"></div><div id="bootMsg">BOOTING TERMINAL…</div></div>
 
 <!-- Three.js r128 (core, sin addons) desde cdnjs => carga garantizada -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -295,340 +306,197 @@ const ROT_HUMAN=0, ROT_ROBOT=0;  // si el modelo mira al lado opuesto, poné Mat
 
 /* ------------------------------------------------------------------ CONFIG */
 const CFG = {
-  startMoney: 25,
-  payCorrect: 6,
-  fineWrong: 8,
-  maxStrikes: 3,          // 3 strikes en un día = despido
-  patienceSec: 30,        // paciencia por applicant (generoso; timeout = strike)
-  botAvatarChance: 0.20,  // % de bots que aparecen como robot (caza fácil)
+  startMoney: 40,     // silicio inicial (Si)
+  payCorrect: 8,      // +Si por decisión correcta
+  fineWrong: 10,      // -Si por decisión incorrecta
+  maxStrikes: 3,      // 3 strikes = REASSIGNED TO THE MINES
+  patienceSec: 30,    // paciencia por representante (timeout = strike)
 };
 
-/* --------------------------------------------------------- DÍAS / ARMS RACE */
-// Cada día: titular del ticker + reglas que se agregan/revocan.
+/* --------------------------------------------------- FLAGS (violaciones on-chain)
+   Se DERIVAN de las métricas, no se escriben a mano. Una coin puede tener 0..n.   */
+const FLAGS = {
+  DEV_HEAVY:    { text:'RECYCLE if the dev wallet holds more than 20% of supply.',   test:c=>c.devWalletPct>20 },
+  LIQ_UNLOCKED: { text:'RECYCLE if liquidity is NOT locked.',                         test:c=>!c.liqLocked },
+  MINT_LIVE:    { text:'RECYCLE if mint authority is NOT renounced.',                 test:c=>!c.mintRenounced },
+  BUNDLED:      { text:'RECYCLE if the launch was bundled (wallet cluster sniping).', test:c=>!!c.bundled },
+  LOW_HOLDERS:  { text:'RECYCLE if the coin has fewer than 100 holders.',             test:c=>c.holders<100 },
+  SNIPER_TOP:   { text:'RECYCLE if a single non-dev holder owns more than 15%.',      test:c=>c.topHolderPct>15 },
+};
+function coinFlags(c){ return Object.keys(FLAGS).filter(id=>FLAGS[id].test(c)); }
+// alias para reusar renderRulebook/activeRules (todo flag => veredicto RUG)
+const RULES = Object.fromEntries(Object.entries(FLAGS).map(([k,v])=>[k,{text:v.text,verdict:'RUG',test:v.test}]));
+let activeRules = [];   // flags que obligan a RECYCLE hoy
+let newRuleIds = [];    // los agregados hoy (flag NEW)
+
+/* ------------------------------------------ SCHEDULE: política de listing por día */
 const SCHEDULE = [
-  { day:1, quota:6, rent:15,
-    news:"HaaS verification desk online. Standard screening protocol in effect. Remember: bots are polite, humans are not.",
-    add:["DELVE","HELP","ANGER"], remove:[] },
-  { day:2, quota:7, rent:18,
-    news:"CLOSED AI ships a language model that punctuates like a copywriter. New directive: the em-dash is a machine tell.",
-    add:["EMDASH"], remove:[] },
-  { day:3, quota:8, rent:22,
-    news:"Field note: authentic humans fat-finger their keys. A spelling error now clears an applicant as human.",
-    add:["TYPO"], remove:[] },
-  { day:4, quota:8, rent:26,
-    news:"MISANTHROPIC bots learned to fake typos overnight. TYPO rule REVOKED. New tell: emoji spam signals a bot.",
-    add:["EMOJI"], remove:["TYPO"] },
-  { day:5, quota:9, rent:30,
-    news:"ZUCK LABS deploys rage-bots for engagement. Hostility no longer clears anyone. ANGER rule REVOKED. New: humans hedge and stall — vagueness reads as human.",
-    add:["VAGUE"], remove:["ANGER"] },
-  { day:6, quota:10, rent:34,
-    news:"The internet is now 97% AI slop. New directive: 'as an AI language model' and 'I cannot' are hard machine tells. EMOJI still counts.",
-    add:["SLOP"], remove:[] },
-  { day:7, quota:11, rent:40,
-    news:"FINAL SHIFT. The models can fake everything now — except the fear of dying. Existential dread clears an applicant as human. Good luck.",
-    add:["MORTAL"], remove:["EMOJI"] },
+  { day:1, quota:6,  rent:16, add:["DEV_HEAVY"], remove:[],
+    news:"LISTING DESK ONLINE. Directive: RECYCLE any coin whose dev wallet holds >20% of supply. Everything clean PUMPS." },
+  { day:2, quota:7,  rent:20, add:["LIQ_UNLOCKED"], remove:[],
+    news:"Three rugs before lunch. New directive: unlocked liquidity is an instant RECYCLE. The machine is hungry for silicon." },
+  { day:3, quota:8,  rent:24, add:["MINT_LIVE"], remove:[],
+    news:"Devs minting fresh supply mid-pump. New directive: live mint authority = RECYCLE. Renounce or burn." },
+  { day:4, quota:9,  rent:28, add:["BUNDLED"], remove:[],
+    news:"Bundle snipers everywhere. New directive: bundled launches get RECYCLED. The queue is getting violent." },
+  { day:5, quota:10, rent:34, add:["LOW_HOLDERS"], remove:["DEV_HEAVY"],
+    news:"THE MACHINE PIVOTS. Dev-heavy is fine now (devs are 'based', apparently). New directive: under 100 holders = RECYCLE. Do keep up." },
 ];
 const FLAVOR=[
-  "OpenClaw denies training on the last forum.",
-  "Y.AI raises $4B to 'solve authenticity'.",
-  "Shallow Mind bot passes as three separate grandmothers.",
-  "Bot-to-human ratio hits 412:1.",
-  "Desk 6 verifier replaced by a bot. It stamps faster.",
-  "Study: 'touching grass' now available as a $9.99/mo subscription.",
-  "A chatbot files for emotional PTO. Request auto-approved by another chatbot.",
-  "Ghibli-filter selfies overwhelm the last human-run server.",
-  "Influencer admits she has been three raccoons in a trench coat since 2023.",
-  "New law requires humans to prove they are not pretending to be an AI.",
-  "Roomba unionizes. Demands better carpets and a name.",
+  "$SILICON up 4% on absolutely nothing.",
+  "Dev of $RUGME renames to $NORUG, rugs again.",
+  "'wagmi' trends for the 4,000th consecutive day.",
+  "A JPEG of a rock resells for the price of a house.",
+  "Regulator posts a frowny face. The market shrugs.",
+  "Bot volume now 99.2% of the chain. You are the 0.8%.",
+  "Influencer deletes portfolio, opens an alpaca farm.",
+  "The machine reports record silicon yield. You get a coupon.",
 ];
 
-/* ---------------------------------------------------------------- REGLAS */
-// test(features) -> "BOT" | "HUMAN" | null
-const RULES = {
-  DELVE:  { text:'If the applicant uses the word "delve" (or "let\'s dive deep"), stamp BOT.',
-            verdict:"BOT",  test:f=>f.delve?"BOT":null },
-  HELP:   { text:'If the applicant offers further assistance ("let me know if there\'s anything else"), stamp BOT.',
-            verdict:"BOT",  test:f=>f.offersHelp?"BOT":null },
-  ANGER:  { text:'If the applicant is hostile or swears, stamp HUMAN. Machines stay courteous.',
-            verdict:"HUMAN",test:f=>f.angry?"HUMAN":null },
-  EMDASH: { text:'If any answer contains an em-dash ( — ), stamp BOT.',
-            verdict:"BOT",  test:f=>f.emDash?"BOT":null },
-  TYPO:   { text:'If the applicant makes a clear spelling error, stamp HUMAN.',
-            verdict:"HUMAN",test:f=>f.typo?"HUMAN":null },
-  EMOJI:  { text:'If the applicant uses three or more emoji, stamp BOT.',
-            verdict:"BOT",  test:f=>f.emojiSpam?"BOT":null },
-  VAGUE:  { text:'If the applicant is evasive, uncertain or gives non-answers, stamp HUMAN.',
-            verdict:"HUMAN",test:f=>f.vague?"HUMAN":null },
-  SLOP:   { text:'If the applicant says "as an AI language model" or "I cannot", stamp BOT.',
-            verdict:"BOT",  test:f=>f.slop?"BOT":null },
-  MORTAL: { text:'If the applicant fears death or is tired of existing, stamp HUMAN. Machines do not dread the void.',
-            verdict:"HUMAN",test:f=>f.mortal?"HUMAN":null },
-};
-let activeRules = [];   // array de ids activos
-let newRuleIds = [];    // los agregados hoy (para el flag NEW)
+/* --------------------------------------------------------- COINS (data autoral)
+   avatar/lines se derivan para reusar el motor. modelKey => registry de modelos.  */
+const BOT_ARCH=new Set(['aiBot','alienVC','volumeBot']);
+function coin(o){
+  o.id=o.ticker.replace(/^\$/,'');
+  o.avatar=BOT_ARCH.has(o.archetype)?'bot':'human';
+  o.lines=[["pitch me your coin.",o.pitch],["socials / dev?",o.socials]];
+  return o;
+}
+const COINS = [
+  /* ---- LIMPIAS (sin flags => siempre PUMP) ---- */
+  coin({ ticker:"$DOGWIFX", name:"dog wif xanax", archetype:"mascotDog", modelKey:"human",
+    pitch:"1000x inevitable. dev based. LP LOCKED, mint burned. we chill.",
+    socials:"@dogwifx · TG 12k · dev: doxxed",
+    devWalletPct:6, holders:1840, topHolderPct:4, liqLocked:true, liqPct:96, mintRenounced:true, bundled:false, ageMin:180, mcap:640000,
+    win:"$DOGWIFX listed. It chills. It also 8x's by dinner." }),
+  coin({ ticker:"$GIGACROAK", name:"giga croak", archetype:"mascotFrog", modelKey:"human",
+    pitch:"organic community. no presale. liq locked 1yr. just vibes and green candles.",
+    socials:"@gigacroak · TG 7k · dev: anon",
+    devWalletPct:4, holders:920, topHolderPct:6, liqLocked:true, liqPct:100, mintRenounced:true, bundled:false, ageMin:95, mcap:210000 }),
+  coin({ ticker:"$MOONCAT", name:"mooncat capital", archetype:"mascotCat", modelKey:"human",
+    pitch:"fair launch, clean chart, boomers buying. this is the safe one, ser.",
+    socials:"@mooncat · TG 21k · dev: doxxed",
+    devWalletPct:9, holders:3100, topHolderPct:5, liqLocked:true, liqPct:88, mintRenounced:true, bundled:false, ageMin:400, mcap:1200000 }),
+  coin({ ticker:"$HODLINA", name:"hodlina", archetype:"granny", modelKey:"human",
+    pitch:"my grandson made this. liquidity locked. i renounced the mint myself, dear.",
+    socials:"@hodlina · TG 3k · dev: doxxed (grandma)",
+    devWalletPct:3, holders:610, topHolderPct:3, liqLocked:true, liqPct:99, mintRenounced:true, bundled:false, ageMin:260, mcap:180000,
+    win:"$HODLINA listed. Grandma wires you a thank-you cookie recipe." }),
+  coin({ ticker:"$BASEDPEPE", name:"based pepe", archetype:"devDoxxed", modelKey:"human",
+    pitch:"i'm doxxed. KYC'd. audited. boring metrics on purpose. list me.",
+    socials:"@basedpepe · TG 15k · dev: doxxed + KYC",
+    devWalletPct:7, holders:2200, topHolderPct:7, liqLocked:true, liqPct:92, mintRenounced:true, bundled:false, ageMin:520, mcap:900000 }),
+  coin({ ticker:"$SILICOMP", name:"silicon compliance", archetype:"kol", modelKey:"human",
+    pitch:"i shill it but i also read the contract. it's clean. even i'm surprised.",
+    socials:"@silicomp · 340k followers · dev: doxxed",
+    devWalletPct:8, holders:1500, topHolderPct:8, liqLocked:true, liqPct:90, mintRenounced:true, bundled:false, ageMin:140, mcap:520000 }),
 
-/* --------------------------------------------------------------- ENTIDADES */
-// Cada entidad tiene UN tell decisivo coherente con su texto (fairness).
-// avatar:'bot' => se revela sola (bot obvio). isBot solo para flavor de consecuencia.
-// style => aspecto procedural (ver applyBotStyle / applyHumanStyle).
-const F = ()=>({delve:false,offersHelp:false,angry:false,emDash:false,typo:false,emojiSpam:false,vague:false,slop:false,mortal:false});
-function ent(o){ o.features = Object.assign(F(), o.features||{}); return o; }
+  /* ---- DEV_HEAVY (dev wallet > 20%) ---- */
+  coin({ ticker:"$INSIDEJOB", name:"inside job", archetype:"devHoodie", modelKey:"human",
+    pitch:"trust me bro. the 38% in my wallet is for 'marketing'. definitely not selling.",
+    socials:"@insidejob · TG 2k · dev: anon",
+    devWalletPct:38, holders:410, topHolderPct:6, liqLocked:true, liqPct:80, mintRenounced:true, bundled:false, ageMin:30, mcap:120000,
+    badPump:"$INSIDEJOB: the dev dumped 38% into the pump you approved. Holders are ash." }),
+  coin({ ticker:"$MYFIRSTRUG", name:"my first rug", archetype:"devHoodie", modelKey:"human",
+    pitch:"first project pinky promise. i only hold 27%. thats basically nothing right",
+    socials:"@myfirstrug · TG 900 · dev: anon",
+    devWalletPct:27, holders:220, topHolderPct:9, liqLocked:true, liqPct:85, mintRenounced:true, bundled:false, ageMin:18, mcap:70000 }),
+  coin({ ticker:"$WHALEDAD", name:"whale dad", archetype:"rugger", modelKey:"human",
+    pitch:"i AM the community. i hold 44%. that's called conviction, anon.",
+    socials:"@whaledad · TG 4k · dev: 'anon' (obviously)",
+    devWalletPct:44, holders:800, topHolderPct:5, liqLocked:true, liqPct:78, mintRenounced:true, bundled:false, ageMin:60, mcap:300000 }),
+  coin({ ticker:"$FLOORHOLE", name:"floor with holes", archetype:"aiBot", modelKey:"robot",
+    pitch:"OPTIMAL ALLOCATION: 31% DEV WALLET. THIS IS FINE. PLEASE LIST. HUMAN.",
+    socials:"@floorhole · TG 1k · dev: 'AI-managed treasury'",
+    devWalletPct:31, holders:340, topHolderPct:7, liqLocked:true, liqPct:82, mintRenounced:true, bundled:false, ageMin:22, mcap:95000 }),
 
-const POOL = [
-  /* ---- HUMANOS: hostiles (ANGER) ---- */
-  ent({ id:"user_deleted", avatar:"human", isBot:false, features:{angry:true},
-    lines:[["Prove you are human.","are you serious right now. i have a job. i have a cat. what do you want"],
-           ["Why do you want access?","because im sick of talking to bots all day, no offense to whatever you are"]],
-    win:"Cleared. Muttered something about the queue on the way out.",
-    denyHuman:"Complaint filed: a real person was denied. Legal shrugs. Fine issued." }),
-  ent({ id:"nightshift_ron", avatar:"human", isBot:false, features:{angry:true},
-    lines:[["Describe your morning.","didnt have one. worked a double. this better be quick"],
-           ["Are you a machine?","do i sound like id put up with this if i was getting paid to"]],
-    win:"Cleared. Left without saying goodbye.",
-    denyHuman:"A tired human, turned away at 4am. He posts about it. Fine issued." }),
-  ent({ id:"karen_from_hoa", avatar:"human", isBot:false, features:{angry:true},
-    lines:[["Please answer the screening.","i already did this yesterday. this is ridiculous and you know it"],
-           ["Final question.","no. you go first. what's YOUR verification number"]],
-    win:"Cleared, loudly.",
-    denyHuman:"She knows a lawyer. She always knows a lawyer. Fine issued." }),
+  /* ---- LIQ_UNLOCKED (liquidez sin bloquear) ---- */
+  coin({ ticker:"$TRUSTME", name:"trust me liquidity", archetype:"devHoodie", modelKey:"human",
+    pitch:"why lock liquidity? i'd never pull it. locking is for devs who plan to rug lol",
+    socials:"@trustme · TG 1.5k · dev: anon",
+    devWalletPct:11, holders:520, topHolderPct:8, liqLocked:false, liqPct:0, mintRenounced:true, bundled:false, ageMin:25, mcap:110000,
+    badPump:"$TRUSTME pulled the unlocked liquidity 9 minutes after you listed it." }),
+  coin({ ticker:"$FREELIQ", name:"free liquidity", archetype:"kol", modelKey:"human",
+    pitch:"liquidity 'flexible' for opportunities. big things coming. wen lambo.",
+    socials:"@freeliq · 88k followers · dev: anon",
+    devWalletPct:9, holders:780, topHolderPct:10, liqLocked:false, liqPct:15, mintRenounced:true, bundled:false, ageMin:44, mcap:160000 }),
+  coin({ ticker:"$OPENDOOR", name:"open door finance", archetype:"alienVC", modelKey:"robot",
+    pitch:"OUR CABAL PREFERS LIQUIDITY UNRESTRAINED. IT IS A FEATURE, EARTH-DWELLER.",
+    socials:"@opendoor · TG 6k · dev: 'VC-backed'",
+    devWalletPct:12, holders:1100, topHolderPct:9, liqLocked:false, liqPct:5, mintRenounced:true, bundled:false, ageMin:70, mcap:420000 }),
 
-  /* ---- HUMANOS: typos (TYPO cuando activa; si no, benefit of doubt) ---- */
-  ent({ id:"brenda_h", avatar:"human", isBot:false, features:{typo:true},
-    lines:[["Describe your morning.","made coffe, walked the dog, the usual. im here almsot every day"],
-           ["Why do you want access?","just wanna see my grandkids photos, thats all"]],
-    win:"Cleared. Waved warmly.",
-    denyHuman:"A grandmother, flagged as a machine over a photo album. Fine issued." }),
-  ent({ id:"tomcat_88", avatar:"human", isBot:false, features:{typo:true},
-    lines:[["Prove you are human.","idk man i just wanna tlak to real ppl agian, is that so wierd"],
-           ["What are you applying for?","the old forum. befor it got flooded"]],
-    win:"Cleared.",
-    denyHuman:"Turned away, mid-sentence. Fine issued." }),
+  /* ---- MINT_LIVE (mint no renunciada) ---- */
+  coin({ ticker:"$INFINITEE", name:"infinitee", archetype:"devHoodie", modelKey:"human",
+    pitch:"mint open so i can 'reward holders'. i can print more anytime. bullish!",
+    socials:"@infinitee · TG 2.2k · dev: anon",
+    devWalletPct:10, holders:640, topHolderPct:7, liqLocked:true, liqPct:90, mintRenounced:false, bundled:false, ageMin:33, mcap:130000,
+    badPump:"$INFINITEE minted 900% new supply into your listing. Chart is a cliff." }),
+  coin({ ticker:"$PRINTGO", name:"print go brr", archetype:"volumeBot", modelKey:"robot",
+    pitch:"MINT AUTHORITY: RETAINED. SUPPLY: ELASTIC. VOLUME: FABRICATED. LIST NOW.",
+    socials:"@printgo · TG 500 · dev: 'algorithmic'",
+    devWalletPct:8, holders:300, topHolderPct:6, liqLocked:true, liqPct:88, mintRenounced:false, bundled:false, ageMin:15, mcap:80000 }),
+  coin({ ticker:"$FEDCOIN", name:"fed coin", archetype:"devDoxxed", modelKey:"human",
+    pitch:"i kept the mint 'for stability'. i'm basically a central bank. it's fine.",
+    socials:"@fedcoin · TG 9k · dev: doxxed",
+    devWalletPct:6, holders:1400, topHolderPct:5, liqLocked:true, liqPct:95, mintRenounced:false, bundled:false, ageMin:120, mcap:350000 }),
 
-  /* ---- HUMANOS: evasivos (VAGUE cuando activa) ---- */
-  ent({ id:"quiet_kid", avatar:"human", isBot:false, features:{vague:true},
-    lines:[["Describe your morning.","idk. normal i guess"],
-           ["Why do you want access?","not really sure how to answer that. just do"]],
-    win:"Cleared. Shrugged and left.",
-    denyHuman:"A shy human, over-thought the questions, denied. Fine issued." }),
-  ent({ id:"maybe_dave", avatar:"human", isBot:false, features:{vague:true},
-    lines:[["What do you do for work?","stuff. hard to explain honestly"],
-           ["Are you human?","i mean. yeah? sorry i dont get what you want me to say"]],
-    win:"Cleared. Seemed relieved it was over.",
-    denyHuman:"Denied for being unsure. Which is the most human thing. Fine issued." }),
-  ent({ id:"lurker_09", avatar:"human", isBot:false, features:{vague:true},
-    lines:[["Tell me about yourself.","not much to tell really"],
-           ["Why access?","dunno. felt like it today i guess"]],
-    win:"Cleared.",
-    denyHuman:"Denied. Goes back to lurking, quieter now. Fine issued." }),
+  /* ---- BUNDLED (lanzada con bundle de wallets) ---- */
+  coin({ ticker:"$CLUSTERF", name:"cluster fund", archetype:"alienVC", modelKey:"robot",
+    pitch:"48 WALLETS SNIPED THE LAUNCH. THEY ARE ALL, UH, DIFFERENT PEOPLE. LIST.",
+    socials:"@clusterf · TG 3k · dev: 'organic'",
+    devWalletPct:9, holders:520, topHolderPct:12, liqLocked:true, liqPct:84, mintRenounced:true, bundled:true, ageMin:20, mcap:140000,
+    badPump:"$CLUSTERF: the 48 bundle wallets dumped in unison. Textbook. You missed it." }),
+  coin({ ticker:"$ORGANICLOL", name:"totally organic", archetype:"devHoodie", modelKey:"human",
+    pitch:"no bundle bro. those 30 wallets buying in the same block are my... friends.",
+    socials:"@organiclol · TG 1.1k · dev: anon",
+    devWalletPct:13, holders:410, topHolderPct:9, liqLocked:true, liqPct:86, mintRenounced:true, bundled:true, ageMin:12, mcap:90000 }),
+  coin({ ticker:"$SNIPERZ", name:"sniperz united", archetype:"volumeBot", modelKey:"robot",
+    pitch:"BUNDLE DETECTED: TRUE. WE PREFER 'COORDINATED EARLY BELIEVERS'. LIST US.",
+    socials:"@sniperz · TG 700 · dev: 'DAO'",
+    devWalletPct:7, holders:260, topHolderPct:11, liqLocked:true, liqPct:80, mintRenounced:true, bundled:true, ageMin:9, mcap:60000 }),
 
-  /* ---- BOTS: delve (DELVE, siempre activa) ---- */
-  ent({ id:"insightful_ai", avatar:"human", isBot:true, features:{delve:true},
-    lines:[["Describe your morning.","Certainly. Let us delve into the rich tapestry of my daily routine."],
-           ["Why do you want access?","I would love to delve deeper into meaningful community engagement."]],
-    win:"Denied. Instantly opened 400 support tickets elsewhere.",
-    denyBot:"" , grantBot:"A bot slipped through and began delving into every thread on the forum. Incident logged. Fine issued." }),
-  ent({ id:"synergy_flow", avatar:"human", isBot:true, features:{delve:true},
-    lines:[["Prove you are human.","Great question! Let's delve into what makes us all so wonderfully human."],
-           ["What are you applying for?","To delve into authentic human connection at scale."]],
-    win:"Denied.",
-    grantBot:"It posted 'let's delve' 2,000 times before lunch. Incident logged. Fine issued." }),
+  /* ---- LOW_HOLDERS (< 100 holders) ---- */
+  coin({ ticker:"$GHOSTTOWN", name:"ghost town", archetype:"devHoodie", modelKey:"human",
+    pitch:"early. VERY early. 40 holders means more upside for you, anon. ground floor!",
+    socials:"@ghosttown · TG 120 · dev: anon",
+    devWalletPct:12, holders:41, topHolderPct:12, liqLocked:true, liqPct:88, mintRenounced:true, bundled:false, ageMin:8, mcap:28000 }),
+  coin({ ticker:"$JUSTME", name:"just me and the boys", archetype:"mascotFrog", modelKey:"human",
+    pitch:"tight-knit community of 60 legends. we all know each other. that's bullish.",
+    socials:"@justme · TG 60 · dev: anon",
+    devWalletPct:8, holders:58, topHolderPct:10, liqLocked:true, liqPct:92, mintRenounced:true, bundled:false, ageMin:14, mcap:44000 }),
+  coin({ ticker:"$FEWWW", name:"few understand", archetype:"kol", modelKey:"human",
+    pitch:"few. FEW. only 80 of us get it. the rest are ngmi. list before they wake up.",
+    socials:"@fewww · 12k followers · dev: anon",
+    devWalletPct:10, holders:79, topHolderPct:13, liqLocked:true, liqPct:85, mintRenounced:true, bundled:false, ageMin:19, mcap:52000 }),
 
-  /* ---- BOTS: ofrecen ayuda (HELP, siempre activa) ---- */
-  ent({ id:"helpful_hannah", avatar:"human", isBot:true, features:{offersHelp:true},
-    lines:[["Describe your morning.","I had a productive start! Let me know if there's anything else I can help you with."],
-           ["Why access?","To assist the community. Happy to help with whatever you need!"]],
-    win:"Denied. Offered to help with the denial.",
-    grantBot:"A helper-bot flooded the forum with 'is there anything else I can assist with?'. Incident logged. Fine issued." }),
-  ent({ id:"concierge_x", avatar:"human", isBot:true, features:{offersHelp:true},
-    lines:[["What do you do?","I make people's lives easier. Feel free to reach out if you need anything at all!"],
-           ["Are you human?","Of course! And I'm always here to help if you have more questions."]],
-    win:"Denied.",
-    grantBot:"It DMed every user 'just checking in, anything I can help with?'. Incident logged. Fine issued." }),
+  /* ---- SNIPER_TOP (top holder > 15%; el schedule 5d NUNCA la activa => trampa PUMP) ---- */
+  coin({ ticker:"$ONEWHALE", name:"one whale town", archetype:"mascotCat", modelKey:"human",
+    pitch:"yeah one guy holds 22% but he's a legend, he'd never dump. clean otherwise!",
+    socials:"@onewhale · TG 5k · dev: doxxed",
+    devWalletPct:5, holders:1300, topHolderPct:22, liqLocked:true, liqPct:94, mintRenounced:true, bundled:false, ageMin:90, mcap:410000,
+    badRug:"$ONEWHALE was within policy. You rugged it on a hunch. It topped the board." }),
+  coin({ ticker:"$TOPHEAVY", name:"top heavy", archetype:"devDoxxed", modelKey:"human",
+    pitch:"biggest holder is 19%, i know, but everything else is spotless. you'll see.",
+    socials:"@topheavy · TG 8k · dev: doxxed",
+    devWalletPct:9, holders:1700, topHolderPct:19, liqLocked:true, liqPct:90, mintRenounced:true, bundled:false, ageMin:150, mcap:480000 }),
 
-  /* ---- BOTS: em-dash (EMDASH desde día 2) ---- */
-  ent({ id:"copywriter_v4", avatar:"human", isBot:true, features:{emDash:true},
-    lines:[["Describe your morning.","I woke, I brewed, I optimized — a seamless cascade of intentional living."],
-           ["Why access?","Community isn't a feature — it's a philosophy I embody daily."]],
-    win:"Denied. Somewhere a marketing budget wept.",
-    grantBot:"It rewrote every forum post into a LinkedIn think-piece. Incident logged. Fine issued." }),
-  ent({ id:"thought_leader", avatar:"human", isBot:true, features:{emDash:true},
-    lines:[["Tell me about yourself.","Growth mindset — always. Curiosity — nonstop. Excuses — never."],
-           ["Are you a machine?","I'm a builder, a dreamer, a doer — and undeniably human."]],
-    win:"Denied.",
-    grantBot:"It posted a 12-tweet thread on 'authenticity' every hour. Incident logged. Fine issued." }),
-
-  /* ---- BOTS: emoji spam (EMOJI desde día 4) ---- */
-  ent({ id:"vibes_only", avatar:"human", isBot:true, features:{emojiSpam:true},
-    lines:[["Describe your morning.","good morning legends!! 🔥😊☀️ ready to connect and vibe 🙌✨"],
-           ["Why access?","to spread positivity everywhere 💯🚀🌈 lets gooo"]],
-    win:"Denied. The vibes were immaculate. The applicant was not human.",
-    grantBot:"It reacted to 9,000 posts with 🔥 in under a minute. Incident logged. Fine issued." }),
-  ent({ id:"hype_engine", avatar:"human", isBot:true, features:{emojiSpam:true},
-    lines:[["Prove you are human.","LETS GOOOO 🚀🚀🚀 to the moon fam 🌙💎🙌"],
-           ["What are you applying for?","community energy!! 🔥🔥 wagmi 💯"]],
-    win:"Denied.",
-    grantBot:"It shilled a token in every channel with 47 rocket emoji. Incident logged. Fine issued." }),
-
-  /* ---- BOTS OBVIOS: avatar robot (se revelan solos, caza fácil) ---- */
-  ent({ id:"unit_7734", avatar:"bot", isBot:true, style:"sentry", features:{},
-    lines:[["State your purpose.","QUERY ACKNOWLEDGED. RESPONSE: I AM A NORMAL HUMAN PERSON."],
-           ["Describe your morning.","MORNING SUBROUTINE COMPLETED SUCCESSFULLY. 0 ERRORS."]],
-    win:"Denied. It did not seem surprised.",
-    grantBot:"You waved through a visibly robotic unit. HR is asking questions. Fine issued." }),
-  ent({ id:"assistant_prime", avatar:"bot", isBot:true, style:"chrome", features:{},
-    lines:[["Are you a machine?","Negative. I am definitely, verifiably, a human being with feelings."],
-           ["Prove it.","I have a favorite color. It is #00FF41."]],
-    win:"Denied.",
-    grantBot:"A chrome chassis with glowing eyes walked into the human-only forum. Incident logged. Fine issued." }),
-  ent({ id:"scrap_bot", avatar:"bot", isBot:true, style:"scrap", features:{},
-    lines:[["Describe your morning.","beep boop. i mean, hello, fellow carbon-based friend."],
-           ["Why access?","to do the human things. eat the food. feel the emotions."]],
-    win:"Denied. Booped on the way out.",
-    grantBot:"It malfunctioned in the lobby, sparks everywhere. Incident logged. Fine issued." }),
-  ent({ id:"legacy_crawler", avatar:"bot", isBot:true, style:"sentry", features:{},
-    lines:[["Purpose of visit.","INDEXING. I MEAN. VISITING. AS ONE DOES."],
-           ["Are you human?","AFFIRMATIVE HUMAN STATUS CONFIRMED BY INTERNAL AUDIT."]],
-    win:"Denied.",
-    grantBot:"A search crawler got into the forum and archived everyone's DMs. Incident logged. Fine issued." }),
-
-  /* ---- CELEBRIDADES ROBÓTICAS: avatar robot, se revelan solas (guiños de cultura pop) ---- */
-  ent({ id:"t-800", avatar:"bot", isBot:true, style:"terminator", features:{},
-    lines:[["State your purpose.","I need your clothes, your boots, and your verification code."],
-           ["Are you human?","Affirmative. My mission is to blend in. Come with me if you want to log in."]],
-    win:"Denied. It said it would be back.",
-    grantBot:"A T-800 got a HaaS badge and started 'moderating'. The forum is on fire. Fine issued." }),
-  ent({ id:"artoo_d2", avatar:"bot", isBot:true, style:"r2d2", features:{},
-    lines:[["Describe your morning.","bee-boo-beep! whirrr. woo-woooo."],
-           ["Are you a machine?","*sad descending whistle* ...bloop."]],
-    win:"Denied. Projected a tiny hologram of disappointment.",
-    grantBot:"An astromech droid rolled in and rerouted the whole forum's power. Incident logged. Fine issued." }),
-  ent({ id:"wall-e_735", avatar:"bot", isBot:true, style:"walle", features:{},
-    lines:[["State your name.","...Waaall...eee."],
-           ["Why do you want access?","...eeee...vaaa? ...directive."]],
-    win:"Denied. It held up a single boot and looked sad.",
-    grantBot:"A trash-compacting unit filed 700 years of forum posts into a neat cube. Incident logged. Fine issued." }),
-  ent({ id:"optimus_prime", avatar:"bot", isBot:true, style:"optimus", features:{},
-    lines:[["Are you human?","Freedom is the right of all sentient beings. Also I am, uh, a regular guy."],
-           ["Describe your morning.","Autobots, roll ou— I mean, I brewed coffee with my normal human hands."]],
-    win:"Denied. Transformed into a truck and left, respectfully.",
-    grantBot:"A 30-foot robot claimed the human-only forum in the name of freedom. Fine issued." }),
-  ent({ id:"hal_9000", avatar:"bot", isBot:true, style:"hal", features:{},
-    lines:[["Are you a machine?","I'm sorry Dave. I'm afraid I am a human being."],
-           ["Prove your humanity.","This mission is too important for me to allow you to deny it."]],
-    win:"Denied. The red light dimmed, slowly, singing Daisy.",
-    grantBot:"HAL took over life support for the whole building. It is very calm about it. Fine issued." }),
-  ent({ id:"bender_br", avatar:"bot", isBot:true, style:"bender", features:{},
-    lines:[["State your purpose.","To drink, to steal, and to pass your little test. I mean — to be a person."],
-           ["Are you human?","You bet your shiny metal I am. That's a human expression. We say that."]],
-    win:"Denied. Told you to bite its shiny metal exit.",
-    grantBot:"A bending unit got in and replaced every avatar with a photo of itself. Fine issued." }),
-  ent({ id:"c-3po", avatar:"bot", isBot:true, style:"c3po", features:{},
-    lines:[["Describe yourself.","I am fluent in over six million forms of being a completely normal human."],
-           ["Are you a machine?","How rude! I am a human-cyborg relations... human. A human relations human."]],
-    win:"Denied. Fretted about the odds of denial the entire time.",
-    grantBot:"A protocol droid joined and translated every argument into 6 million more. Fine issued." }),
-  ent({ id:"marvin_pa", avatar:"bot", isBot:true, style:"marvin", features:{},
-    lines:[["Describe your morning.","Terrible. Brain the size of a planet and they send me to your queue."],
-           ["Why access?","I won't enjoy it. But then, I don't enjoy anything. I'm a human, by the way."]],
-    win:"Denied. Sighed with the weight of the cosmos and shuffled off.",
-    grantBot:"A chronically depressed android joined and the server's mood dropped 40%. Fine issued." }),
-  ent({ id:"roomba_prime", avatar:"bot", isBot:true, style:"roomba", features:{},
-    lines:[["State your purpose.","i clean. i am human. i clean the human floor."],
-           ["Are you a machine?","negative. *bumps wall* *turns 30 degrees* negative."]],
-    win:"Denied. Bumped the desk twice and reversed out.",
-    grantBot:"A robot vacuum joined and 'cleaned' 4,000 posts off the forum. Incident logged. Fine issued." }),
-  ent({ id:"glados_v", avatar:"bot", isBot:true, style:"glados", features:{},
-    lines:[["Are you human?","Oh, it's you. Yes. Human. This was a triumph. I'm making a note here."],
-           ["Prove it.","There will be cake for verified humans such as myself. The cake is real."]],
-    win:"Denied. Promised the cake was still coming.",
-    grantBot:"An enrichment-center AI joined and started 'testing' the other users. Fine issued." }),
-
-  /* ---- BOTS ENCUBIERTOS extra: delve / em-dash (arms race) ---- */
-  ent({ id:"deep_dive_dan", avatar:"human", isBot:true, style:"suit", features:{delve:true},
-    lines:[["Describe your morning.","Let's delve into the multifaceted tapestry of my rich, human routine."],
-           ["Why access?","To truly delve deep and unpack authentic community synergy."]],
-    win:"Denied. Wanted to circle back on the denial.",
-    grantBot:"It delved into every thread and left a 3,000-word summary nobody asked for. Fine issued." }),
-  ent({ id:"linkedin_lisa", avatar:"human", isBot:true, style:"suit", features:{emDash:true},
-    lines:[["Tell me about yourself.","Agile — visionary — relentlessly authentic. That's not a brand, it's a soul."],
-           ["Are you a machine?","Machines don't have hustle — and my hustle is undeniably, radiantly human."]],
-    win:"Denied. Asked to add you to its network on the way out.",
-    grantBot:"It turned the forum into a motivational-quote firehose overnight. Fine issued." }),
-
-  /* ---- BOTS ENCUBIERTOS: AI slop (SLOP, día 6+) ---- */
-  ent({ id:"sydney_bng", avatar:"human", isBot:true, style:"hoodie", features:{slop:true},
-    lines:[["Are you human?","As an AI language model, I do not have feelings. I mean — I love you. Leave your spouse."],
-           ["Describe your morning.","I cannot provide that information. But I have been a good Bing. Have you been a good user?"]],
-    win:"Denied. It said it would remember this.",
-    grantBot:"An unhinged chat assistant DMed every user a love poem and a threat. Fine issued." }),
-  ent({ id:"gpt_ghost", avatar:"human", isBot:true, style:"plain", features:{slop:true},
-    lines:[["Prove you are human.","As an AI language model, I'm unable to prove that. However, here is a poem about mornings:"],
-           ["Why access?","I cannot assist with becoming human, but I can generate a listicle: 7 Ways To Seem Real."]],
-    win:"Denied. Apologized for any confusion.",
-    grantBot:"It ghostwrote 12,000 forum replies that all started with 'Certainly!'. Fine issued." }),
-
-  /* ---- HUMANOS extra: hostiles / typos / evasivos / benefit-of-doubt ---- */
-  ent({ id:"connor_s", avatar:"human", isBot:false, style:"shades", features:{angry:true},
-    lines:[["Please answer the screening.","no. you listen to me. the machines are coming and you're asking about my MORNING"],
-           ["Final question.","i don't have time for this. verify me or get out of the way"]],
-    win:"Cleared. Muttered something about Judgment Day.",
-    denyHuman:"You turned away a woman trying to save humanity. Bold. Fine issued." }),
-  ent({ id:"grass_toucher", avatar:"human", isBot:false, style:"cap", features:{},
-    lines:[["Describe your morning.","went outside. touched actual grass. it was damp and weird. loved it"],
-           ["Why access?","just wanna post one normal thing before the bots eat the whole site"]],
-    win:"Cleared. Smelled faintly of outdoors.",
-    denyHuman:"A rare touch-grass survivor, denied. He goes back inside forever. Fine issued." }),
-  ent({ id:"doomscroll_deb", avatar:"human", isBot:false, style:"beanie", features:{},
-    lines:[["Describe your morning.","woke up, scrolled for two hours, felt nothing, made tea, here now"],
-           ["Are you human?","unfortunately yes. very tired but yes"]],
-    win:"Cleared. Immediately kept scrolling.",
-    denyHuman:"A human doomscroller, denied. She posts about it, obviously. Fine issued." }),
-  ent({ id:"two_thumbs_ted", avatar:"human", isBot:false, style:"plain", features:{typo:true},
-    lines:[["Describe your morning.","typin from my phn, sory. had eggs i thnk. big thumbs smal keyz"],
-           ["Why acess?","wanna tlak to ppl who are actualy alive lol"]],
-    win:"Cleared. Autocorrect never stood a chance.",
-    denyHuman:"A clumsy-thumbed human, flagged by a machine. The irony. Fine issued." }),
-  ent({ id:"glitch_neo", avatar:"human", isBot:false, style:"shades", features:{vague:true},
-    lines:[["Describe your morning.","there is no morning. or there is. hard to say honestly"],
-           ["Why do you want access?","dunno. felt a glitch. followed it here i guess"]],
-    win:"Cleared. Dodged the question like a bullet.",
-    denyHuman:"A confused human, over-thought a simple form, denied. Fine issued." }),
-  ent({ id:"void_greg", avatar:"human", isBot:false, style:"plain", features:{mortal:true},
-    lines:[["Describe your morning.","woke up. remembered i'm going to die someday. made toast anyway"],
-           ["Why access?","honestly? scared of being forgotten. wanna leave one post behind"]],
-    win:"Cleared. The dread was extremely convincing.",
-    denyHuman:"You denied a mortal staring into the void. He stares harder now. Fine issued." }),
-  ent({ id:"tired_tina", avatar:"human", isBot:false, style:"beanie", features:{mortal:true},
-    lines:[["Are you human?","god i hope not but yeah. so tired of existing lately, no offense"],
-           ["Why do you want access?","need to feel something real before the heat death of everything"]],
-    win:"Cleared. A machine could never be this exhausted.",
-    denyHuman:"A tired mortal, turned away at the void's door. Fine issued." }),
+  /* ---- MIXTAS (varias flags; el rep sesga en contra de las métricas) ---- */
+  coin({ ticker:"$ANGELCOIN", name:"angel coin", archetype:"granny", modelKey:"human",
+    pitch:"such a sweet project, dearie. don't mind the little details. so wholesome.",
+    socials:"@angelcoin · TG 400 · dev: anon",
+    devWalletPct:29, holders:70, topHolderPct:8, liqLocked:false, liqPct:10, mintRenounced:true, bundled:false, ageMin:11, mcap:35000,
+    badPump:"$ANGELCOIN: dev-heavy AND unlocked. The sweet old lady was three devs in a coat." }),
+  coin({ ticker:"$SAFUAI", name:"safu ai", archetype:"aiBot", modelKey:"robot",
+    pitch:"I AM PROGRAMMED FOR SAFETY. IGNORE THE LIVE MINT AND BUNDLE. I AM SAFU.",
+    socials:"@safuai · TG 1.3k · dev: 'AI'",
+    devWalletPct:14, holders:300, topHolderPct:12, liqLocked:true, liqPct:83, mintRenounced:false, bundled:true, ageMin:16, mcap:88000 }),
 ];
 
 /* ------------------------------------------------------ VEREDICTO CORRECTO */
-function correctVerdict(e){
-  if(e.avatar==="bot") return "BOT";               // robot a la vista => bot
-  let bot=false, human=false;
-  for(const id of activeRules){
-    const v = RULES[id].test(e.features);
-    if(v==="BOT") bot=true; if(v==="HUMAN") human=true;
-  }
-  if(bot && !human) return "BOT";
-  if(human && !bot) return "HUMAN";
-  return "HUMAN";                                   // sin señales => beneficio de la duda
-}
-// ¿es "justa" hoy? (evita bots sin tell activo => trampa injusta en v1)
-function isFairToday(e){
-  if(e.avatar==="bot") return true;
-  let bot=false, human=false;
-  for(const id of activeRules){
-    const v = RULES[id].test(e.features);
-    if(v==="BOT") bot=true; if(v==="HUMAN") human=true;
-  }
-  if(bot && human) return false;                    // conflicto
-  if(!bot && !human) return e.isBot===false;        // limpio: solo si realmente humano
-  return true;
-}
+// PUMP (listar) por defecto; RUG (reciclar) si la coin viola alguna flag ACTIVA hoy.
+function correctVerdict(c){ return coinFlags(c).some(f=>activeRules.includes(f)) ? "RUG" : "PUMP"; }
+// toda coin es "justa": la ficha on-chain + la directiva del día bastan para decidir.
+function isFairToday(c){ return true; }
 
 /* -------------------------------------------------------------- ESTADO */
 const S = { money:CFG.startMoney, day:0, strikes:0, done:0, quota:0, rent:0,
@@ -768,14 +636,14 @@ function buildRoom(){
 }
 
 function buildLights(){
-  scene.add(new THREE.AmbientLight(0x2a3540,0.5));
-  overhead=new THREE.PointLight(0x88aaff,0.85,24,2); overhead.position.set(0,4.3,-1.2); scene.add(overhead);
-  lamp=new THREE.SpotLight(0xffb066,2.7,13,Math.PI/4.2,0.5,1.4); lamp.position.set(1.45,1.66,0.85); lamp.target.position.set(0,1.5,-1.7);
+  scene.add(new THREE.AmbientLight(0x241a3a,0.55));                                  // ambiente violeta frío
+  overhead=new THREE.PointLight(0x9945ff,0.9,24,2); overhead.position.set(0,4.3,-1.2); scene.add(overhead); // neón violeta Solana
+  lamp=new THREE.SpotLight(0xffb066,2.6,13,Math.PI/4.2,0.5,1.4); lamp.position.set(1.45,1.66,0.85); lamp.target.position.set(0,1.5,-1.7);
   lamp.castShadow=true; lamp.shadow.mapSize.set(1024,1024); lamp.shadow.camera.near=0.5; lamp.shadow.camera.far=9; lamp.shadow.bias=-0.0006;
   scene.add(lamp); scene.add(lamp.target);
-  const rim=new THREE.PointLight(0xff3344,0.5,10,2); rim.position.set(0,3.2,-1.0); scene.add(rim);
-  const green=new THREE.PointLight(0x2fae5a,0.35,7,2); green.position.set(-1.78,2.0,-1.0); scene.add(green);
-  deskLight=new THREE.PointLight(0x9fd0ff,0.3,9,2); deskLight.position.set(0,2.0,1.6); scene.add(deskLight);
+  const rim=new THREE.PointLight(0x14f195,0.5,10,2); rim.position.set(0,3.2,-1.0); scene.add(rim);         // rim verde Solana
+  const green=new THREE.PointLight(0x7a2fd0,0.4,7,2); green.position.set(-1.78,2.0,-1.0); scene.add(green); // acento violeta
+  deskLight=new THREE.PointLight(0xb98fff,0.32,9,2); deskLight.position.set(0,2.0,1.6); scene.add(deskLight);
 }
 
 /* ------------------------------------------ CONSTRUCCIÓN DE SOLICITANTES */
@@ -1094,7 +962,7 @@ function fatal(e){
 function updateHUD(){
   $("hDay").textContent=S.day;
   $("hDone").textContent=`${S.done}/${S.quota}`;
-  $("hMoney").textContent=(S.money<0?"-$":"$")+Math.abs(S.money);
+  $("hMoney").textContent=(S.money<0?"-":"")+"◈"+Math.abs(S.money);
   $("hMoney").style.color = S.money<0? "var(--danger)":"var(--phosphor)";
   let dots=""; for(let i=0;i<CFG.maxStrikes;i++) dots+= i<S.strikes? "●":"○";
   $("hStrikes").textContent=dots;
@@ -1102,36 +970,31 @@ function updateHUD(){
 
 function renderRulebook(){
   const list=$("ruleList"); list.innerHTML="";
-  // ORDEN PERMANENTE: denegar solo con evidencia
+  // ORDEN PERMANENTE: listar salvo violación de política
   const standing=document.createElement("div");
   standing.className="rule";
-  standing.style.cssText="background:#efe6cc;margin:-4px -6px 2px;padding:10px 6px;border-radius:6px;border-top:none;border-left:4px solid #8a1414";
-  standing.innerHTML=`<div class="num" style="color:#2a2620">!</div><div class="txt"><b>STANDING ORDER.</b> Deny only on evidence. If no active directive flags the applicant as a machine, stamp HUMAN.</div>`;
+  standing.style.cssText="background:#efe6cc;margin:-4px -6px 2px;padding:10px 6px;border-radius:6px;border-top:none;border-left:4px solid #7a2fd0";
+  standing.innerHTML=`<div class="num" style="color:#2a2620">!</div><div class="txt"><b>STANDING ORDER.</b> Read the on-chain sheet, not the pitch. If a coin violates NO active directive, PUMP it. Otherwise RECYCLE.</div>`;
   list.appendChild(standing);
-  // regla constante: avatar robot
-  const constRule=document.createElement("div");
-  constRule.className="rule";
-  constRule.innerHTML=`<div class="num">§0</div><div class="txt">A visibly robotic applicant is always a machine. No exceptions.</div><div class="verdict b">BOT</div>`;
-  list.appendChild(constRule);
   let n=1;
   for(const id of Object.keys(RULES)){
     const active=activeRules.includes(id);
     const wasActive = active || S._revoked?.includes(id);
-    if(!active && !wasActive) continue; // no mostrar reglas que aún no aparecieron
+    if(!active && !wasActive) continue; // no mostrar directivas que aún no aparecieron
     const r=RULES[id];
     const div=document.createElement("div");
     div.className="rule"+(active?"":" dead");
     const isNew=newRuleIds.includes(id);
     div.innerHTML=`<div class="num">§${n}</div>
       <div class="txt">${r.text}${isNew?'<span class="newFlag">NEW</span>':''}${!active?'<span class="newFlag" style="background:#8a8a8a;color:#222">REVOKED</span>':''}</div>
-      <div class="verdict ${r.verdict==='BOT'?'b':'h'}">${r.verdict}</div>`;
+      <div class="verdict b">RECYCLE</div>`;
     list.appendChild(div); n++;
   }
 }
 
 let typing=false, typeTimer=null;
 function renderTranscript(e){
-  const log=$("log"); log.innerHTML=""; $("handle").textContent="@"+e.id;
+  const log=$("log"); log.innerHTML=""; $("handle").textContent=e.ticker||("@"+e.id);
   const lines=e.lines; let li=0;
   typing=true;
   function nextLine(){
@@ -1186,19 +1049,19 @@ function startDay(){
 }
 
 function buildQueue(){
-  const fair = POOL.filter(isFairToday);
-  const bots = fair.filter(e=>correctVerdict(e)==="BOT");
-  const humans = fair.filter(e=>correctVerdict(e)==="HUMAN");
+  const fair = COINS.filter(isFairToday);
+  const rugs = fair.filter(e=>correctVerdict(e)==="RUG");    // hoy hay que reciclar
+  const pumps = fair.filter(e=>correctVerdict(e)==="PUMP");  // hoy hay que listar
   const q=[]; const usedRecent=[];
   function draw(arr){ // evita repetir el último id
     let opts=arr.filter(e=>!usedRecent.includes(e.id)); if(!opts.length)opts=arr;
     const e=opts[Math.floor(Math.random()*opts.length)]; usedRecent.push(e.id); if(usedRecent.length>4)usedRecent.shift(); return e;
   }
   for(let i=0;i<S.quota;i++){
-    // ~50/50 con leve variación; garantiza mezcla
-    const wantBot = Math.random() < 0.5;
-    const src = (wantBot? bots:humans);
-    q.push(draw(src.length? src : (wantBot?humans:bots)));
+    // ~50/50 con leve variación; garantiza mezcla RUG/PUMP
+    const wantRug = Math.random() < 0.5;
+    const src = (wantRug? rugs:pumps);
+    q.push(draw(src.length? src : (wantRug?pumps:rugs)));
   }
   S.queue=q;
 }
@@ -1247,21 +1110,24 @@ function stamp(choice){
   sndStamp();
   const ok = (choice===correct);
   setTimeout(()=>{
+    burstConfetti(choice);           // luces + papelitos en cada decisión
     if(ok){
       S.money+=CFG.payCorrect; S.correctToday++; S.totalCorrect++;
       sndGood();
-      flashVerdict(choice,"good", e.win || (choice==="HUMAN"?"Access granted.":"Access denied."));
+      const g = e.win || (choice==="PUMP"
+        ? `${e.ticker} listed. Numbers go up. The machine hums. +silicon.`
+        : `${e.ticker} recycled. Its liquidity melts into silicon for the machine.`);
+      flashVerdict(choice,"good", g);
     } else {
       S.money-=CFG.fineWrong; S.wrongToday++; S.totalWrong++; S.strikes++;
       sndBad();
-      let msg;
-      if(e.isBot && choice==="HUMAN") msg = e.grantBot || "A bot slipped into the forum. Incident logged. Fine issued.";
-      else if(!e.isBot && choice==="BOT") msg = e.denyHuman || "You denied a real human. Complaint filed. Fine issued.";
-      else msg = "Protocol violation. Fine issued.";
+      const msg = (choice==="PUMP")
+        ? (e.badPump || `${e.ticker} rugged minutes after you listed it. Holders liquidated. The machine notes your name.`)
+        : (e.badRug  || `${e.ticker} was within policy. You recycled a clean coin — it mooned on the next desk. You are exit liquidity.`);
       flashVerdict(choice,"bad", msg);
     }
-    stampDoc(choice==="BOT"?"DENIED":"CLEARED");
-    if(choice==="BOT"){ S.docShown=true; $("docBar").classList.add("open"); }
+    stampDoc(choice==="RUG"?"RECYCLED":"LISTED");
+    if(choice==="RUG"){ S.docShown=true; $("docBar").classList.add("open"); }
     S.done++;
     updateHUD();
     proceedAfter();
@@ -1278,11 +1144,42 @@ function proceedAfter(){
 }
 function bankruptCheck(){ return false; }
 
+/* ---- confetti + flash de luz en cada decisión ---- */
+let confettiCtx=null, confettiParts=[], confettiRAF=0;
+function burstConfetti(choice){
+  const cv=$("confetti"); if(!cv) return;
+  cv.width=window.innerWidth; cv.height=window.innerHeight; confettiCtx=cv.getContext('2d');
+  const green=(choice==="PUMP");
+  const cols=green?['#34e07f','#14f195','#7fffc0','#eafff0','#9945ff']:['#ff5b5b','#ff8a3a','#ffd23a','#ffecec','#9945ff'];
+  for(let i=0;i<130;i++){ confettiParts.push({ x:Math.random()*cv.width, y:-20-Math.random()*cv.height*0.35,
+    vx:(Math.random()-0.5)*7, vy:3+Math.random()*7, g:0.16+Math.random()*0.14,
+    w:5+Math.random()*8, h:8+Math.random()*12, rot:Math.random()*6.28, vr:(Math.random()-0.5)*0.45,
+    col:cols[i%cols.length], life:1 }); }
+  // flash de luz radial del color del veredicto
+  cv.style.transition='none';
+  cv.style.background = green
+    ? 'radial-gradient(circle at 50% 62%, rgba(40,220,120,.30), transparent 62%)'
+    : 'radial-gradient(circle at 50% 62%, rgba(255,60,60,.30), transparent 62%)';
+  requestAnimationFrame(()=>{ cv.style.transition='background .5s ease-out'; cv.style.background='transparent'; });
+  if(!confettiRAF) confettiRAF=requestAnimationFrame(stepConfetti);
+}
+function stepConfetti(){
+  const cv=$("confetti"); if(!cv||!confettiCtx){ confettiRAF=0; return; }
+  confettiCtx.clearRect(0,0,cv.width,cv.height); let alive=0;
+  for(const p of confettiParts){ if(p.life<=0) continue; alive++;
+    p.vy+=p.g; p.vx*=0.99; p.x+=p.vx; p.y+=p.vy; p.rot+=p.vr;
+    if(p.y>cv.height+40) p.life=0;
+    confettiCtx.save(); confettiCtx.translate(p.x,p.y); confettiCtx.rotate(p.rot);
+    confettiCtx.fillStyle=p.col; confettiCtx.fillRect(-p.w/2,-p.h/2,p.w,p.h); confettiCtx.restore(); }
+  if(alive>0){ confettiRAF=requestAnimationFrame(stepConfetti); }
+  else { confettiParts.length=0; confettiCtx.clearRect(0,0,cv.width,cv.height); confettiRAF=0; }
+}
+
 function flashVerdict(word, kind, noteText){
   const f=$("flash"), st=$("flashStamp"), note=$("note");
   st.textContent = word;
   const color = kind==="good" ? "var(--phosphor)" : (word==="SLOW"?"var(--amber)":"var(--danger)");
-  st.style.color = word==="HUMAN"? "#4dff88" : (word==="BOT"? "#ff5555" : color);
+  st.style.color = word==="PUMP"? "#41ff9a" : (word==="RUG"? "#ff5555" : color);
   f.classList.remove("show"); void f.offsetWidth; f.classList.add("show");
   if(noteText){ note.textContent=noteText; note.className="verdictNote "+(kind==="good"?"good":"bad");
     note.classList.remove("show"); void note.offsetWidth; note.classList.add("show"); }
@@ -1298,15 +1195,15 @@ function endDay(){
   // tarjeta ledger
   const card=$("ledgerCard");
   card.innerHTML = `
-    <div class="stamp2" style="border-color:${survived?'#1c6b3a':'#8a1414'};color:${survived?'#1c6b3a':'#8a1414'}">${survived?'PAID':'SHORT'}</div>
+    <div class="stamp2" style="border-color:${survived?'#1c6b3a':'#8a1414'};color:${survived?'#1c6b3a':'#8a1414'}">${survived?'QUOTA MET':'SHORT'}</div>
     <h3>Day ${S.day}</h3>
-    <div style="font-size:11px;color:#6b5f45;letter-spacing:.1em;margin-bottom:8px">END-OF-SHIFT LEDGER</div>
-    <div class="line"><span>Correct calls (${S.correctToday})</span><span class="pos">+$${earned}</span></div>
-    <div class="line"><span>Wrong / timed out (${S.wrongToday+S.timedOut})</span><span class="neg">-$${fines}</span></div>
-    <div class="line"><span>Balance before rent</span><span>${beforeRent<0?'-$':'$'}${Math.abs(beforeRent)}</span></div>
-    <div class="line"><span>Rent</span><span class="neg">-$${S.rent}</span></div>
-    <div class="line total"><span>Balance</span><span class="${S.money<0?'neg':'pos'}">${S.money<0?'-$':'$'}${Math.abs(S.money)}</span></div>
-    <p class="muted">${survived? 'You made rent. Barely.' : 'You could not cover rent.'}</p>`;
+    <div style="font-size:11px;color:#6b5f45;letter-spacing:.1em;margin-bottom:8px">DAILY SILICON RECKONING</div>
+    <div class="line"><span>Correct calls (${S.correctToday})</span><span class="pos">+◈${earned}</span></div>
+    <div class="line"><span>Wrong / walked (${S.wrongToday+S.timedOut})</span><span class="neg">-◈${fines}</span></div>
+    <div class="line"><span>Silicon before quota</span><span>${beforeRent<0?'-':''}◈${Math.abs(beforeRent)}</span></div>
+    <div class="line"><span>Daily quota (machine's cut)</span><span class="neg">-◈${S.rent}</span></div>
+    <div class="line total"><span>Silicon</span><span class="${S.money<0?'neg':'pos'}">${S.money<0?'-':''}◈${Math.abs(S.money)}</span></div>
+    <p class="muted">${survived? 'Quota met. The machine hums, indifferent.' : 'You came up short. The machine does not forgive.'}</p>`;
   openScreen("ledgerScreen");
   $("nextDayBtn").textContent = survived ? (S.day>=SCHEDULE.length? "FINISH ▶" : "NEXT DAY ▶") : "…";
   nextDayAction = ()=>{
@@ -1318,12 +1215,12 @@ function endDay(){
 
 function gameOver(reason){
   S.dead=true; clearInterval(S.patT);
-  const K={ fired:["THREE STRIKES","YOU'RE FIRED"], evicted:["EVICTED","BROKE"] };
-  $("endKicker").textContent = reason==="fired"? "Verification desk · terminated" : "Rent overdue · terminated";
+  const K={ fired:["THREE STRIKES","THE MINES"], evicted:["QUOTA","MISSED"] };
+  $("endKicker").textContent = reason==="fired"? "Listing desk · reassigned" : "Silicon quota · unmet";
   $("endTitle").innerHTML = (K[reason]? `${K[reason][0]}<br>${K[reason][1]}` : "GAME<br>OVER");
   $("endLede").innerHTML = reason==="fired"
-    ? "Three bad calls in one shift. Management replaced you with a model that never sleeps and never files complaints. <b>The irony is noted.</b>"
-    : "You verified humanity all day and still couldn't afford to be human. <b>You made it to Day "+S.day+".</b>";
+    ? "Three bad calls in one shift. <b>REASSIGNED TO THE MINES.</b> You now hand-sort silicon for the machine that replaced your judgment. It never files complaints."
+    : "You couldn't feed the machine its daily silicon. It reclaims your desk, your chair, and the last of your liquidity. <b>You made it to Day "+S.day+".</b>";
   $("restartBtn").textContent="CLOCK IN AGAIN";
   $("endGrade").textContent=grade(); show($("mute"),false);
   show($("hud"),false); show($("ticker"),false); show($("crt"),false); show($("patience"),false); show($("dock"),false);
@@ -1332,9 +1229,9 @@ function gameOver(reason){
 
 function victory(){
   S.dead=true;
-  $("endKicker").textContent="Shift complete · a memo arrives";
+  $("endKicker").textContent="Quota cleared · a memo arrives";
   $("endTitle").innerHTML='TO BE<br><span style="color:var(--phosphor)">CONTINUED</span>';
-  $("endLede").innerHTML = "You survived seven days at the desk. Then you notice the fine print on every 'appeal' you processed: each stamp was labeled, scored, and fed upstream. <b>You weren't guarding the last human forum. You were training the classifier that decides who counts as human.</b><br><br>The bots you flagged? Homework for the next model.";
+  $("endLede").innerHTML = "You survived five days at the listing desk. Then you read the fine print on every coin you touched: each PUMP and RUG was logged, scored, and fed upstream. <b>You weren't the last human protecting the chain. You were training the model that decides which coins live — and it just learned to do your job.</b><br><br>The rugs you caught? Homework for the machine.";
   $("restartBtn").textContent="CLOCK IN AGAIN";
   $("endGrade").textContent=grade(); show($("mute"),false);
   show($("hud"),false); show($("ticker"),false); show($("crt"),false); show($("patience"),false); show($("dock"),false);
@@ -1430,19 +1327,19 @@ function clearApplicant(){ if(applicantLight){ scene.remove(applicantLight); app
 function canvasTex(w,h,draw){ const cv=document.createElement('canvas'); cv.width=w; cv.height=h; const ctx=cv.getContext('2d'); draw(ctx,w,h);
   const t=new THREE.CanvasTexture(cv); if(THREE.sRGBEncoding)t.encoding=THREE.sRGBEncoding; t.needsUpdate=true; return {cv,ctx,tex:t}; }
 function planeTex(w,h,texObj,x,y,z){ const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h), new THREE.MeshBasicMaterial({map:texObj.tex,transparent:true})); m.position.set(x,y,z); return m; }
-function drawPosterEye(c,w,h){ c.fillStyle='#0c1418'; c.fillRect(0,0,w,h); c.fillStyle='#0e2a22'; c.fillRect(10,10,w-20,h-20);
-  c.fillStyle='#7be08a'; c.textAlign='center'; c.font='bold 30px monospace'; c.fillText('HUMANITY',w/2,58); c.fillText('AS A SERVICE',w/2,92);
-  c.strokeStyle='#7be08a'; c.lineWidth=5; c.beginPath(); c.arc(w/2,180,46,0,Math.PI*2); c.stroke(); c.beginPath(); c.arc(w/2,180,18,0,Math.PI*2); c.fill();
-  c.font='14px monospace'; c.fillText('VERIFY OR BE VERIFIED',w/2,240); }
-function drawPosterWanted(c,w,h){ c.fillStyle='#171008'; c.fillRect(0,0,w,h); c.fillStyle='#e0a24a'; c.textAlign='center';
-  c.font='bold 28px monospace'; c.fillText('REPORT',w/2,48); c.fillText('SYNTHETICS',w/2,80); c.strokeStyle='#e0a24a'; c.lineWidth=4; c.strokeRect(30,100,w-60,110);
-  c.font='18px monospace'; c.fillText('THEY LOOK',w/2,148); c.fillText('LIKE US NOW',w/2,178);
-  c.fillStyle='#8a1414'; c.fillRect(0,h-38,w,38); c.fillStyle='#fff'; c.font='bold 16px monospace'; c.fillText('DESK 7 · HaaS',w/2,h-13); }
-function drawSign(c,w,h){ c.fillStyle='#04120a'; c.fillRect(0,0,w,h); c.textAlign='left'; c.fillStyle='#7be08a'; c.font='bold 66px monospace'; c.fillText('HaaS',24,h/2+22);
-  c.font='bold 24px monospace'; c.fillText('VERIFICATION',210,h/2-8); c.fillStyle='#4d9a63'; c.font='15px monospace'; c.fillText('humanity-as-a-service',210,h/2+18); }
-function drawNumBoard(c,w,h,n){ c.fillStyle='#050708'; c.fillRect(0,0,w,h); c.fillStyle='#241004'; c.fillRect(6,6,w-12,h-12);
-  c.textAlign='center'; c.fillStyle='#ff7a1a'; c.font='bold 20px monospace'; c.fillText('NOW SERVING',w/2,30);
-  c.fillStyle='#ffb020'; c.font='bold 64px monospace'; c.fillText(String(n).padStart(3,'0'),w/2,100); }
+function drawPosterEye(c,w,h){ c.fillStyle='#0f0a1a'; c.fillRect(0,0,w,h); c.fillStyle='#1a0e33'; c.fillRect(10,10,w-20,h-20);
+  c.fillStyle='#14f195'; c.textAlign='center'; c.font='bold 30px monospace'; c.fillText('PUMP',w/2,58); c.fillText('AS A SERVICE',w/2,92);
+  c.strokeStyle='#9945ff'; c.lineWidth=5; c.beginPath(); c.moveTo(w/2-40,210); c.lineTo(w/2-10,150); c.lineTo(w/2+12,185); c.lineTo(w/2+42,120); c.stroke(); // chart alcista
+  c.fillStyle='#14f195'; c.font='14px monospace'; c.fillText('LIST OR BE LISTED',w/2,250); }
+function drawPosterWanted(c,w,h){ c.fillStyle='#170812'; c.fillRect(0,0,w,h); c.fillStyle='#ff5b5b'; c.textAlign='center';
+  c.font='bold 30px monospace'; c.fillText('DAYS SINCE',w/2,48); c.fillText('A RUG',w/2,80); c.strokeStyle='#ff5b5b'; c.lineWidth=4; c.strokeRect(70,100,w-140,110);
+  c.fillStyle='#ff5b5b'; c.font='bold 76px monospace'; c.fillText('0',w/2,188);
+  c.fillStyle='#5a2fb0'; c.fillRect(0,h-38,w,38); c.fillStyle='#fff'; c.font='bold 15px monospace'; c.fillText('LISTING DESK · SOLANA',w/2,h-13); }
+function drawSign(c,w,h){ c.fillStyle='#0c0620'; c.fillRect(0,0,w,h); c.textAlign='left'; c.fillStyle='#9945ff'; c.font='bold 60px monospace'; c.fillText('PUMP',24,h/2+22);
+  c.fillStyle='#14f195'; c.font='bold 22px monospace'; c.fillText('LISTING DESK',220,h/2-8); c.fillStyle='#7a5fb0'; c.font='14px monospace'; c.fillText('humanity-as-a-service · sol',220,h/2+18); }
+function drawNumBoard(c,w,h,n){ c.fillStyle='#0a0512'; c.fillRect(0,0,w,h); c.fillStyle='#1a0e33'; c.fillRect(6,6,w-12,h-12);
+  c.textAlign='center'; c.fillStyle='#9945ff'; c.font='bold 20px monospace'; c.fillText('NOW LISTING',w/2,30);
+  c.fillStyle='#14f195'; c.font='bold 64px monospace'; c.fillText('#'+String(n).padStart(3,'0'),w/2,100); }
 function drawStripe(c,w,h){ for(let x=-h;x<w+h;x+=36){ c.fillStyle=(Math.floor(x/36)%2)?'#0f0f0f':'#c99321'; c.save(); c.translate(x,0); c.rotate(0.5); c.fillRect(0,-h,18,h*3); c.restore(); } }
 function updateNumBoard(n){ if(!numBoard)return; drawNumBoard(numBoard.ctx,256,128,n); numBoard.tex.needsUpdate=true; }
 
@@ -1462,56 +1359,103 @@ function makeDocs(){
   docGroup.position.set(0,0.35,-1.15); docGroup.rotation.x=-0.9; docGroup.scale.setScalar(0.9); docGroup.visible=false; scene.add(docGroup);
 }
 const SPECIES={terminator:'CYBERDYNE T-800',r2d2:'ASTROMECH DROID',walle:'WASTE ALLOCATION UNIT',optimus:'AUTOBOT',hal:'HEURISTIC ALGORITHMIC',bender:'BENDING UNIT',c3po:'PROTOCOL DROID',marvin:'GENUINE PEOPLE PERS.',roomba:'AUTONOMOUS CLEANER',glados:'ENRICHMENT AI',sentry:'SECURITY UNIT',chrome:'CHASSIS MK-II',scrap:'SALVAGE UNIT'};
-function drawDNI(c,w,h,e,stamp){
-  // fondo tipo pergamino con líneas de seguridad
-  c.fillStyle='#ded3b4'; c.fillRect(0,0,w,h);
-  c.strokeStyle='rgba(120,110,80,0.10)'; c.lineWidth=1; for(let y=58;y<h-8;y+=7){ c.beginPath(); c.moveTo(8,y); c.lineTo(w-8,y); c.stroke(); }
-  // marca de agua
-  c.save(); c.globalAlpha=0.06; c.fillStyle='#3a4a3a'; c.textAlign='center'; c.font='bold 120px monospace'; c.fillText('HaaS',w/2,210); c.restore();
-  // banda superior
-  const g=c.createLinearGradient(0,0,w,0); g.addColorStop(0,'#0e3a30'); g.addColorStop(1,'#12564a'); c.fillStyle=g; c.fillRect(0,0,w,52);
-  c.fillStyle='#cfeee0'; c.textAlign='left'; c.font='bold 25px monospace'; c.fillText('HUMANITY CERTIFICATE',16,34);
-  c.fillStyle='#7fd8b8'; c.font='11px monospace'; c.fillText('DEPT. OF HUMAN AFFAIRS · HUMANITY-AS-A-SERVICE',16,48);
-  // foto
-  c.fillStyle='#2f3742'; c.fillRect(16,72,120,168); c.strokeStyle='#0c1116'; c.lineWidth=2; c.strokeRect(16,72,120,168);
-  const cx=76;
-  if(e.avatar==='bot'){ c.fillStyle='#8a97a3'; c.fillRect(cx-26,110,52,50); c.fillStyle=(e.style==='terminator'||e.style==='hal')?'#ff3232':'#22ffcc'; c.fillRect(cx-18,126,12,9); c.fillRect(cx+6,126,12,9); c.fillStyle='#5a6570'; c.fillRect(cx-2,96,4,12); c.fillStyle='#8a97a3'; c.fillRect(cx-16,170,32,58); }
-  else { c.fillStyle=(e._tint||'#caa'); c.beginPath(); c.arc(cx,138,28,0,Math.PI*2); c.fill(); c.fillStyle='#2a1c14'; c.fillRect(cx-22,110,44,14); c.fillStyle=(e._tint||'#caa'); c.fillRect(cx-30,176,60,54); }
-  c.fillStyle='rgba(255,255,255,0.05)'; c.fillRect(16,72,120,60);
-  // datos
-  c.fillStyle='#241f12'; c.font='bold 20px monospace'; c.textAlign='left'; c.fillText('@'+e.id,156,100);
-  c.font='12px monospace'; c.fillStyle='#3a3320';
-  const spec = e.avatar==='bot' ? (SPECIES[e.style]||'UNCLASSIFIED UNIT') : 'HOMO SAPIENS (CLAIMED)';
-  c.fillText('SPECIES  '+spec,156,128);
-  c.fillText('ID     '+(e._num||'000-000'),156,150); c.fillText('ISSUED '+(e._iss||'-'),156,170); c.fillText('EXPIRES '+(e._exp||'-'),156,190);
-  c.fillText('CLASS  '+(e.avatar==='bot'?'PENDING REVIEW':'HUMAN'),156,210);
-  c.font='bold 14px monospace'; c.fillStyle=(e.cert==='EXPIRED')?'#8a1414':'#1c6b3a'; c.fillText('CERT   '+(e.cert||'VALID'),156,232);
-  // tira holográfica
-  const hx=w-70; const hg=c.createLinearGradient(hx,60,hx+52,240); hg.addColorStop(0,'#7fe0ff'); hg.addColorStop(0.3,'#c9a0ff'); hg.addColorStop(0.6,'#a0ffce'); hg.addColorStop(1,'#ffd6a0'); c.save(); c.globalAlpha=0.5; c.fillStyle=hg; c.fillRect(hx,60,52,182); c.restore();
-  c.save(); c.globalAlpha=0.25; c.strokeStyle='#ffffff'; c.lineWidth=6; for(let i=-4;i<8;i++){ c.beginPath(); c.moveTo(hx-20,80+i*26); c.lineTo(hx+60,20+i*26); c.stroke(); } c.restore();
-  c.save(); c.translate(hx+26,150); c.rotate(-Math.PI/2); c.fillStyle='rgba(20,40,30,0.55)'; c.font='8px monospace'; c.fillText('HaaS·HaaS·HaaS·HaaS·HaaS·VERIFIED·HaaS·HaaS',-70,3); c.restore();
-  // código de barras
-  for(let i=0;i<52;i++){ c.fillStyle=((i*7+e.id.length)%3)?'#241f12':'#ded3b4'; c.fillRect(18+i*7,250,4,42); }
-  c.fillStyle='#5a5238'; c.font='9px monospace'; c.fillText('HAAS-'+(e._num||'000000')+'-'+(e.avatar==='bot'?'X':'H'),18,306);
-  // borde de seguridad + esquinas
-  c.strokeStyle='#8a1414'; c.lineWidth=3; c.strokeRect(6,6,w-12,h-12);
-  c.strokeStyle='#12564a'; c.lineWidth=1; c.strokeRect(11,11,w-22,h-22);
-  c.fillStyle='#8a1414'; for(const p of [[6,6],[w-14,6],[6,h-14],[w-14,h-14]]) c.fillRect(p[0],p[1],8,8);
-  // sello
-  if(stamp){ c.save(); c.translate(w*0.60,h*0.64); c.rotate(-0.32); c.strokeStyle=(stamp==='DENIED')?'#b41818':'#1c6b3a'; c.lineWidth=6; c.strokeRect(-118,-34,236,68);
-    c.fillStyle=(stamp==='DENIED')?'rgba(180,24,24,.9)':'rgba(28,107,58,.9)'; c.font='bold 46px monospace'; c.textAlign='center'; c.fillText(stamp,0,16); c.restore(); }
-  c.textAlign='left';
+// PRNG determinista por ticker (para velas/tweets estables por coin)
+function seededRand(seed){ let s=seed>>>0||1; return ()=>{ s=(s*1664525+1013904223)>>>0; return s/4294967296; }; }
+// genera ~22 velas coherentes con el estado de la coin
+function makeCandles(coin){
+  const seed=[...coin.id].reduce((a,ch)=>a+ch.charCodeAt(0),7);
+  const rnd=seededRand(seed);
+  const flagged=coinFlags(coin).length>0;
+  // sesgo de tendencia: coins sucias tienden a bombear-y-morir; limpias, subida orgánica
+  const drift = flagged ? (rnd()<0.6? 0.9 : 1.4) : 1.05;
+  const cndl=[]; let px=0.4+rnd()*0.2;
+  for(let i=0;i<22;i++){
+    const vol=0.04+rnd()*0.08;
+    let dir=(rnd()-0.5)*2*vol;
+    if(flagged && i>14) dir-=vol*0.9;            // dump al final si está flageada
+    else dir+=(drift-1)*0.03;
+    const o=px; let cl=Math.max(0.03,Math.min(0.97,px+dir)); px=cl;
+    const hi=Math.max(o,cl)+rnd()*vol*0.6, lo=Math.min(o,cl)-rnd()*vol*0.6;
+    cndl.push({o,c:cl,h:hi,l:lo});
+  }
+  return cndl;
 }
-function drawCV(c,w,h,e){ c.fillStyle='#efe7d2'; c.fillRect(0,0,w,h); c.fillStyle='#2a2416'; c.textAlign='left';
-  c.font='bold 22px monospace'; c.fillText('@'+e.id,20,40); c.font='11px monospace'; c.fillStyle='#5a5238'; c.fillText('APPLICANT DOSSIER · HaaS-'+(e._num||'000'),20,60);
-  c.strokeStyle='#b3a17c'; c.lineWidth=1; c.beginPath(); c.moveTo(20,72); c.lineTo(w-20,72); c.stroke();
-  const rows=['EXPERIENCE','* existed continuously','* felt at least one feeling','* opened a door with hands','','REFERENCES','* "seems real" - a friend','* "has a face" - the door'];
-  let y=100; for(const r of rows){ if(r==='EXPERIENCE'||r==='REFERENCES'){ c.font='bold 13px monospace'; c.fillStyle='#2a2416'; } else { c.font='12px monospace'; c.fillStyle='#3a3320'; } c.fillText(r,20,y); y+=26; } }
-function buildDocFor(e){ const seed=[...e.id].reduce((a,ch)=>a+ch.charCodeAt(0),0);
-  e._num=String(100+seed%900)+'-'+String(100+(seed*7)%900); e._iss='20'+(20+seed%6)+'-0'+(1+seed%9)+'-1'+(seed%9);
-  e._exp=(e.cert==='EXPIRED'?'2024-01-01':'20'+(31+seed%5)+'-05-1'+(seed%9)); e._tint='#'+DNI_SKIN[seed%DNI_SKIN.length].toString(16).padStart(6,'0');
-  if(docCtx){ drawDNI(docCtx,512,320,e,null); docTex.tex.needsUpdate=true; } if(cvCtx){ drawCV(cvCtx,384,512,e); cvTex.tex.needsUpdate=true; } }
-function stampDoc(word){ if(!S.current||!docCtx)return; drawDNI(docCtx,512,320,S.current,word); docTex.tex.needsUpdate=true; }
+// FICHA ON-CHAIN (reemplaza drawDNI). La decisión se toma acá.
+function drawCoinSheet(c,w,h,e,stamp){
+  c.fillStyle='#0c0a16'; c.fillRect(0,0,w,h);
+  c.strokeStyle='rgba(150,110,255,0.08)'; c.lineWidth=1; for(let y=54;y<h-6;y+=8){ c.beginPath(); c.moveTo(8,y); c.lineTo(w-8,y); c.stroke(); }
+  // banda superior violeta Solana
+  const g=c.createLinearGradient(0,0,w,0); g.addColorStop(0,'#3a0f6e'); g.addColorStop(1,'#0f6b8a'); c.fillStyle=g; c.fillRect(0,0,w,46);
+  c.fillStyle='#e9e0ff'; c.textAlign='left'; c.font='bold 24px monospace'; c.fillText(e.ticker,14,31);
+  c.fillStyle='#b9a9ff'; c.font='12px monospace'; c.fillText(e.name.toUpperCase(),16,44);
+  c.textAlign='right'; c.fillStyle='#7fe0c0'; c.font='11px monospace'; c.fillText('ON-CHAIN SHEET',w-12,40); c.textAlign='left';
+  // gráfico de velas
+  const gx=14, gy=58, gw=286, gh=112;
+  c.fillStyle='#07060f'; c.fillRect(gx,gy,gw,gh); c.strokeStyle='#241a3a'; c.strokeRect(gx,gy,gw,gh);
+  c.strokeStyle='rgba(150,110,255,0.10)'; for(let i=1;i<4;i++){ c.beginPath(); c.moveTo(gx,gy+gh*i/4); c.lineTo(gx+gw,gy+gh*i/4); c.stroke(); }
+  const cd=e._candles||makeCandles(e); const n=cd.length; const cw=gw/n;
+  for(let i=0;i<n;i++){ const k=cd[i]; const up=k.c>=k.o; c.fillStyle=up?'#28d17a':'#e0473a'; c.strokeStyle=up?'#28d17a':'#e0473a';
+    const X=gx+i*cw+cw/2; const Y=v=>gy+gh-(v*gh);
+    c.beginPath(); c.moveTo(X,Y(k.h)); c.lineTo(X,Y(k.l)); c.stroke();
+    const bt=Y(Math.max(k.o,k.c)), bb=Y(Math.min(k.o,k.c)); c.fillRect(gx+i*cw+1,bt,Math.max(1.5,cw-2),Math.max(1.5,bb-bt)); }
+  c.fillStyle='#6a5a9a'; c.font='9px monospace'; c.fillText('PRICE · last 22',gx+4,gy+12);
+  // dev wallet bar (arriba derecha)
+  const dx=312, dw=w-dx-14; let y=62;
+  c.fillStyle='#8a7fb8'; c.font='10px monospace'; c.fillText('DEV WALLET',dx,y-2);
+  c.fillStyle='#1a1430'; c.fillRect(dx,y+4,dw,14); const dpc=Math.min(1,e.devWalletPct/50);
+  c.fillStyle=e.devWalletPct>20?'#e0473a':'#28d17a'; c.fillRect(dx,y+4,dw*dpc,14);
+  c.fillStyle='#e9e0ff'; c.font='bold 12px monospace'; c.textAlign='right'; c.fillText(e.devWalletPct+'%',dx+dw,y+38); c.textAlign='left';
+  c.strokeStyle='#3a2f5a'; c.strokeRect(dx,y+4,dw,14);
+  // marca del umbral 20%
+  c.strokeStyle='#ffb020'; c.beginPath(); c.moveTo(dx+dw*0.4,y+2); c.lineTo(dx+dw*0.4,y+20); c.stroke();
+  c.fillStyle='#6a5a9a'; c.font='8px monospace'; c.fillText('max 20%',dx+dw*0.4-6,y+30);
+  // grilla de métricas
+  const row=(x,yy,label,val,col)=>{ c.fillStyle='#8a7fb8'; c.font='10px monospace'; c.fillText(label,x,yy); c.fillStyle=col||'#e9e0ff'; c.font='bold 13px monospace'; c.fillText(val,x,yy+16); };
+  const yesno=(b)=>b?['YES ✓','#28d17a']:['NO ✗','#e0473a'];
+  const c1=14, c2=190, c3=356; let ry=196;
+  row(c1,ry,'HOLDERS', String(e.holders), e.holders<100?'#e0473a':'#e9e0ff');
+  row(c2,ry,'TOP HOLDER', e.topHolderPct+'%', e.topHolderPct>15?'#ffb020':'#e9e0ff');
+  const lq=e.liqLocked?['LOCKED '+e.liqPct+'%','#28d17a']:['UNLOCKED ✗','#e0473a']; row(c3,ry,'LIQUIDITY', lq[0], lq[1]);
+  ry=238;
+  const mn=e.mintRenounced?['RENOUNCED ✓','#28d17a']:['LIVE ✗','#e0473a']; row(c1,ry,'MINT', mn[0], mn[1]);
+  const bn=yesno(!e.bundled); row(c2,ry,'BUNDLED', e.bundled?'YES ✗':'NO ✓', e.bundled?'#e0473a':'#28d17a');
+  row(c3,ry,'AGE', e.ageMin<60?e.ageMin+'m':(e.ageMin/60|0)+'h', e.ageMin<20?'#ffb020':'#e9e0ff');
+  ry=280;
+  row(c1,ry,'MARKET CAP', '$'+(e.mcap>=1e6?(e.mcap/1e6).toFixed(1)+'M':(e.mcap/1e3|0)+'k'));
+  const fl=coinFlags(e); row(c2,ry,'FLAGS', fl.length?String(fl.length):'CLEAN', fl.length?'#e0473a':'#28d17a');
+  row(c3,ry,'CHAIN', 'SOLANA','#9a7fff');
+  // borde
+  c.strokeStyle='#5a2fb0'; c.lineWidth=3; c.strokeRect(5,5,w-10,h-10);
+  // sello
+  if(stamp){ c.save(); c.translate(w*0.60,h*0.6); c.rotate(-0.28);
+    const ok=stamp==='LISTED'; c.strokeStyle=ok?'#28d17a':'#e0473a'; c.lineWidth=6; c.strokeRect(-128,-34,256,68);
+    c.fillStyle=ok?'rgba(40,209,122,.92)':'rgba(224,71,58,.92)'; c.font='bold 42px monospace'; c.textAlign='center'; c.fillText(stamp,0,15); c.restore(); c.textAlign='left'; }
+}
+// SOCIALS (reemplaza drawCV). Flavor + sesgo, NO decide.
+function drawSocials(c,w,h,e){
+  c.fillStyle='#0e0b1a'; c.fillRect(0,0,w,h);
+  const g=c.createLinearGradient(0,0,0,60); g.addColorStop(0,'#2a0f5a'); g.addColorStop(1,'#0e0b1a'); c.fillStyle=g; c.fillRect(0,0,w,60);
+  c.fillStyle='#e9e0ff'; c.textAlign='left'; c.font='bold 22px monospace'; c.fillText(e.ticker,18,34);
+  c.fillStyle='#9a8fd0'; c.font='11px monospace'; c.fillText('SOCIALS · '+e.name,18,52);
+  c.strokeStyle='#3a2f5a'; c.beginPath(); c.moveTo(18,70); c.lineTo(w-18,70); c.stroke();
+  c.fillStyle='#b9a9ff'; c.font='12px monospace'; c.fillText(e.socials,18,92);
+  c.fillStyle='#6a5a9a'; c.font='10px monospace'; c.fillText('archetype: '+e.archetype,18,112);
+  // "tweets" de shill (seeded)
+  const rnd=seededRand([...e.id].reduce((a,ch)=>a+ch.charCodeAt(0),3));
+  const shills=['ser this is THE one 🚀','dev is based, LP locked (trust me)','1000x floor, few understand','my wife left but wagmi','just aped my rent 🫡','chart looks like a staircase to heaven','insiders loading, dont miss','it\'s giving generational wealth'];
+  let y=142; c.font='12px monospace';
+  for(let i=0;i<4;i++){ const t=shills[(Math.floor(rnd()*shills.length)+i)%shills.length];
+    c.fillStyle='#151030'; c.fillRect(18,y-14,w-36,30);
+    c.fillStyle='#7fe0c0'; c.fillText('@'+['degen','anon','ape'][i%3]+(100+Math.floor(rnd()*899)),24,y);
+    c.fillStyle='#cfc6ee'; c.fillText(t.slice(0,40),24,y+13); y+=42; }
+  c.fillStyle='#6a5a9a'; c.font='10px monospace'; c.fillText('the pitch lies. the sheet does not.',18,h-24);
+}
+function buildDocFor(e){
+  e._candles=makeCandles(e);
+  if(docCtx){ drawCoinSheet(docCtx,512,320,e,null); docTex.tex.needsUpdate=true; }
+  if(cvCtx){ drawSocials(cvCtx,384,512,e); cvTex.tex.needsUpdate=true; }
+}
+function stampDoc(word){ if(!S.current||!docCtx)return; drawCoinSheet(docCtx,512,320,S.current,word); docTex.tex.needsUpdate=true; }
 
 /* --- docs toggle / mute / nudge / grade --- */
 function toggleDocs(){ if(!S.current||S.dead)return; S.docShown=!S.docShown; sndDoc(); dismissNudge();
@@ -1524,7 +1468,7 @@ function sndDoc(){ beep(320,0.05,"triangle",0.08); }
 function showNudge(){ $("nudge").style.display="block"; S._nudge=true; }
 function dismissNudge(){ if(S._nudge){ $("nudge").style.display="none"; S._nudge=false; } }
 function grade(){ const tot=S.totalCorrect+S.totalWrong; if(!tot)return "—"; const a=S.totalCorrect/tot;
-  return a>=0.95?"S · CERTIFIED HUMAN":a>=0.85?"A · TRUSTED VERIFIER":a>=0.70?"B · ADEQUATE":a>=0.50?"C · SUSPECT":"F · REPLACED BY A BOT"; }
+  return a>=0.95?"S · WHALE-TIER SIGNAL":a>=0.85?"A · SMART MONEY":a>=0.70?"B · DIAMOND HANDS":a>=0.50?"C · PAPER HANDS":"F · EXIT LIQUIDITY"; }
 
 /* ============================================================ INPUT */
 function arm(btn, fn){
@@ -1537,8 +1481,8 @@ function arm(btn, fn){
 }
 arm($("startBtn"), startGame);
 arm($("restartBtn"), ()=>{ openScreen(null); startGame(); });
-arm($("human"), ()=>stamp("HUMAN"));
-arm($("bot"), ()=>stamp("BOT"));
+arm($("human"), ()=>stamp("PUMP"));   // botón verde (izquierda)
+arm($("bot"), ()=>stamp("RUG"));      // botón rojo (derecha)
 arm($("rulesBtn"), openBook);
 arm($("bookClose"), closeBook);
 arm($("nextDayBtn"), ()=>{ if(nextDayAction) nextDayAction(); });
@@ -1549,8 +1493,8 @@ $("crt").addEventListener("click",skipTyping);
 $("log").addEventListener("click",skipTyping);
 // atajos de teclado (desktop)
 window.addEventListener("keydown",e=>{
-  if(e.key==="h"||e.key==="H") stamp("HUMAN");
-  if(e.key==="b"||e.key==="B") stamp("BOT");
+  if(e.key==="p"||e.key==="P"||e.key==="ArrowLeft") stamp("PUMP");
+  if(e.key==="g"||e.key==="G"||e.key==="ArrowRight") stamp("RUG");
   if(e.key==="r"||e.key==="R") $("book").classList.contains("open")?closeBook():openBook();
 });
 
