@@ -72,6 +72,8 @@
     padding:6px 16px; border:5px solid; border-radius:14px; opacity:0; pointer-events:none; }
   .stamp.pump{ left:20px; color:var(--pump); border-color:var(--pump); transform:rotate(-16deg); }
   .stamp.rug{ right:20px; color:var(--rug); border-color:var(--rug); transform:rotate(16deg); }
+  .stamp.pump.hit{ transform:rotate(-16deg) scale(1.14); }
+  .stamp.rug.hit{ transform:rotate(16deg) scale(1.14); }
   .hint{ position:absolute; z-index:3; bottom:158px; left:0; right:0; text-align:center; font-family:var(--mono);
     font-size:11px; letter-spacing:.1em; color:rgba(255,255,255,.7); pointer-events:none; }
   /* ---------- galería multi-foto ---------- */
@@ -186,7 +188,7 @@
     <img id="matchLogo" class="mlogo" alt="">
     <div class="msub" id="matchSub"></div>
     <a id="matchLink" class="mlink" target="_blank" rel="noopener" style="display:none"></a>
-    <div class="mkeep">keep swiping →</div>
+    <div class="mkeep" id="mkeep">keep swiping →</div>
   </div>
 
   <!-- start -->
@@ -431,16 +433,28 @@ function attachDrag(card){
   card.addEventListener("pointercancel", ()=>end());
 }
 
+function advance(){ const m=$("match"); if(m) m.classList.remove("on"); matchHold=false; idx++; draw(); }
+
 function fling(action){
   if(locked || !topCard) return;
   locked = true;
   const dir = action==="PUMP" ? 1 : -1;
-  topCard.style.transition = "transform .35s ease-in";
-  topCard.style.transform = `translateX(${dir*140}vw) rotate(${dir*22}deg)`;
-  const s = topCard.querySelector(action==="PUMP"?".stamp.pump":".stamp.rug"); if(s) s.style.opacity=1;
+  const card = topCard;
+  // el sello aparece de una y se queda bien visible sobre la card quieta...
+  const s = card.querySelector(action==="PUMP"?".stamp.pump":".stamp.rug");
+  if(s){ s.style.transition="opacity .12s ease, transform .18s ease"; s.style.opacity=1; s.classList.add("hit"); }
   const isMatch = resolve(action);
-  if(isMatch) showMatch(DECK[idx]);
-  setTimeout(()=>{ idx++; draw(); }, isMatch ? 1550 : 700);
+  // ...y recién después de un beat la card sale volando
+  setTimeout(()=>{
+    card.style.transition = "transform .5s ease-in";
+    card.style.transform = `translateX(${dir*140}vw) rotate(${dir*22}deg)`;
+  }, 720);
+  if(isMatch){
+    // primero se ve el sello PUMP, luego el overlay del match
+    setTimeout(()=>{ const holding = showMatch(DECK[idx]); if(!holding) setTimeout(advance, 1400); }, 760);
+  } else {
+    setTimeout(advance, 1350);
+  }
 }
 
 function resolve(action){
@@ -478,11 +492,21 @@ function showMatch(c){
     { label:"View on DexScreener ↗",    url:"https://dexscreener.com/solana/"+ca },
     { label:"View on CoinMarketCap ↗",  url:"https://coinmarketcap.com/dexscan/solana/"+ca }
   ]) : null;
-  if(src && Math.random()<0.5){ link.textContent=src.label; link.href=src.url; link.style.display=""; }
-  else { link.style.display="none"; }
+  // si sale link, el match SE QUEDA hasta que toques para seguir (así se ve/usa el link)
+  matchHold = !!(src && Math.random()<0.5);
+  if(matchHold){ link.textContent=src.label; link.href=src.url; link.style.display=""; $("mkeep").textContent="tap to keep swiping →"; }
+  else { link.style.display="none"; $("mkeep").textContent="keep swiping →"; }
   m.classList.add("on");
-  clearTimeout(showMatch._t); showMatch._t=setTimeout(()=>m.classList.remove("on"), 1600);
+  return matchHold;
 }
+
+// tocar el overlay del match (menos el link) avanza a la próxima card
+let matchHold=false;
+$("match").addEventListener("click", e=>{
+  if(!matchHold) return;
+  if(e.target.closest("#matchLink")) return;   // dejá que el link abra
+  advance();
+});
 
 function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
 
