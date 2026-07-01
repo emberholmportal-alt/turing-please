@@ -136,9 +136,9 @@
   .title .accent{ color:var(--sol2); text-shadow:0 0 18px rgba(20,241,149,.4); }
   .accent2{ color:var(--sol2); font-weight:800; }
   /* pop flotante de silicio */
-  #siliconPop{ position:fixed; left:50%; top:44%; transform:translateX(-50%); z-index:46; pointer-events:none; opacity:0;
+  #pumpPop{ position:fixed; left:50%; top:44%; transform:translateX(-50%); z-index:46; pointer-events:none; opacity:0;
     font-family:var(--stencil); font-weight:800; font-size:min(11vw,58px); letter-spacing:.02em; text-shadow:0 3px 12px rgba(0,0,0,.6); }
-  #siliconPop.show{ animation:sipop 1.1s ease-out; }
+  #pumpPop.show{ animation:sipop 1.1s ease-out; }
   @keyframes sipop{ 0%{ opacity:0; transform:translate(-50%,10px) scale(.7); } 18%{ opacity:1; transform:translate(-50%,-6px) scale(1.1); } 70%{ opacity:1; } 100%{ opacity:0; transform:translate(-50%,-52px) scale(1); } }
 
   /* ====== REGLAMENTO ====== */
@@ -246,7 +246,7 @@
 <div id="hud" class="hidden">
   <div class="stat day"><div class="lbl">Day</div><div class="val" id="hDay">1</div></div>
   <div class="stat"><div class="lbl">Listed</div><div class="val" id="hDone">0/6</div></div>
-  <div class="stat money"><div class="lbl">Silicon</div><div class="val" id="hMoney">◈40</div></div>
+  <div class="stat money"><div class="lbl">Pumpcoin</div><div class="val" id="hMoney">◈40</div></div>
   <div class="stat strikes"><div class="lbl">Strikes</div><div class="val" id="hStrikes">○○○</div></div>
 </div>
 <div id="ticker" class="hidden"><div class="tag">CT</div><div class="track" id="tickerTxt">…</div></div>
@@ -284,13 +284,13 @@
 <!-- Veredicto -->
 <div id="flash"><div id="flashStamp">—</div></div>
 <div id="note" class="verdictNote"></div>
-<div id="siliconPop"></div>
+<div id="pumpPop"></div>
 
 <!-- Menú -->
 <div id="menu" class="screen open">
   <div class="kicker">Humanity-as-a-Service · Solana</div>
   <div class="title">PUMP,<br><span class="accent">PLEASE</span></div>
-  <p class="lede">You're the last human in the loop of a machine-run casino chain. At the final listing desk, every memecoin sends a rep. Read the pitch, but decide on the <b>on-chain sheet</b>. <b class="accent2">PUMP</b> the clean ones. <b>RUG</b> the ones that violate today's directive — their liquidity melts into silicon for the machine.<br><br>Feed the machine. Don't get reassigned to the mines.</p>
+  <p class="lede">You're the last human in the loop of a machine-run casino chain. At the final listing desk, every memecoin sends a rep. Read the pitch, but decide on the <b>on-chain sheet</b>. <b class="accent2">PUMP</b> the clean ones. <b>RUG</b> the ones that violate today's directive — their liquidity is minted into PUMPCOIN for the machine.<br><br>Feed the machine. Don't get reassigned to the mines.</p>
   <button class="cta" id="startBtn" disabled>LOADING…</button>
   <p class="muted" id="soundNote">tap to enable sound · works best in portrait</p>
 </div>
@@ -358,7 +358,7 @@ const SCHEDULE = [
   { day:1, quota:6,  rent:16, add:["DEV_HEAVY"], remove:[],
     news:"LISTING DESK ONLINE. Directive: RECYCLE any coin whose dev wallet holds >20% of supply. Everything clean PUMPS." },
   { day:2, quota:7,  rent:20, add:["LIQ_UNLOCKED"], remove:[],
-    news:"Three rugs before lunch. New directive: unlocked liquidity is an instant RECYCLE. The machine is hungry for silicon." },
+    news:"Three rugs before lunch. New directive: unlocked liquidity is an instant RECYCLE. The machine is hungry for PUMPCOIN." },
   { day:3, quota:8,  rent:24, add:["MINT_LIVE"], remove:[],
     news:"Devs minting fresh supply mid-pump. New directive: live mint authority = RECYCLE. Renounce or burn." },
   { day:4, quota:9,  rent:28, add:["BUNDLED"], remove:[],
@@ -374,7 +374,7 @@ const FLAVOR=[
   "Regulator posts a frowny face. The market shrugs.",
   "Bot volume now 99.2% of the chain. You are the 0.8%.",
   "Influencer deletes portfolio, opens an alpaca farm.",
-  "The machine reports record silicon yield. You get a coupon.",
+  "The machine reports record PUMPCOIN yield. You get a coupon.",
 ];
 
 /* --------------------------------------------------------- COINS (data autoral)
@@ -712,45 +712,7 @@ function makeCoinLogo(coin){
   const tex=new THREE.CanvasTexture(cv); if(THREE.sRGBEncoding)tex.encoding=THREE.sRGBEncoding; tex.needsUpdate=true;
   return {cv,tex,hue};
 }
-// EL PROTAGONISTA: bot cabeza-monitor voxel, recoloreado por coin, con el logo en la pantalla
-const MCAP_CROWN=800000;
-function buildMonitorBot(coin){
-  const grp=new THREE.Group(); const s=seedOf(coin);
-  const logo=makeCoinLogo(coin); coin._logoCv=logo.cv; const hue=logo.hue;
-  const bmat =new THREE.MeshStandardMaterial({color:HSL(hue,.62,.52),metalness:.35,roughness:.5});
-  const bmat2=new THREE.MeshStandardMaterial({color:HSL(hue,.62,.40),metalness:.35,roughness:.5}); // bisel (tono claro)
-  const dark =mat(0x141020,{metalness:.5,roughness:.5});
-  const glow=HSL(hue,.9,.6).getHex();
-  // torso chunky con biseles
-  grp.add(Object.assign(box(0.88,0.86,0.52,bmat,0,1.18,0),{castShadow:true}));
-  grp.add(box(0.92,0.14,0.56,bmat2,0,1.55,0)); grp.add(box(0.92,0.14,0.56,bmat2,0,0.82,0));
-  grp.add(eBox(0.58,0.28,0.02,0x0c0a16,0,1.2,0.27)); grp.add(eBall(0.06,glow,0,1.2,0.29));
-  grp.add(box(0.16,0.12,0.16,dark,0,1.66,0));
-  // cabeza MONITOR (la estrella)
-  grp.add(Object.assign(box(0.96,0.72,0.44,dark,0,2.06,0),{castShadow:true}));
-  grp.add(box(1.0,0.76,0.06,bmat2,0,2.06,-0.2));
-  grp.add(eBox(0.82,0.6,0.01,HSL(hue,.7,.16).getHex(),0,2.06,0.2)); // fondo pantalla emisivo
-  const screen=new THREE.Mesh(new THREE.PlaneGeometry(0.8,0.58), new THREE.MeshBasicMaterial({map:logo.tex,transparent:true}));
-  screen.position.set(0,2.06,0.221); grp.add(screen); grp.userData.screen=screen;
-  // ojos pixel + boca (encima del logo)
-  const el=eBox(0.12,0.12,0.02,0x0c0a16,-0.22,2.18,0.225), er=eBox(0.12,0.12,0.02,0x0c0a16,0.22,2.18,0.225); grp.add(el); grp.add(er);
-  const pL=eBox(0.06,0.06,0.02,0xffffff,-0.22,2.18,0.23), pR=eBox(0.06,0.06,0.02,0xffffff,0.22,2.18,0.23); grp.add(pL); grp.add(pR);
-  const mouth=eBox(0.24,0.05,0.02,0x0c0a16,0,1.95,0.225); grp.add(mouth);
-  grp.userData.eyes=[pL,pR]; grp.userData.eyeMask=[el,er]; grp.userData.mouth=mouth; grp.userData.eyeCol=[1,1,1];
-  // antena
-  grp.add(cyl(0.02,0.02,0.2,bmat2,0,2.5,0)); grp.add(eBall(0.05,glow,0,2.62,0));
-  // brazos + manos
-  grp.add(box(0.16,0.6,0.2,bmat,-0.57,1.15,0)); grp.add(box(0.16,0.6,0.2,bmat,0.57,1.15,0));
-  grp.add(box(0.22,0.16,0.26,bmat2,-0.57,0.85,0.02)); grp.add(box(0.22,0.16,0.26,bmat2,0.57,0.85,0.02));
-  // base / orugas
-  grp.add(box(0.92,0.24,0.62,dark,0,0.66,0)); grp.add(box(0.96,0.1,0.66,bmat2,0,0.56,0));
-  for(const sx of [-0.32,0.32]) grp.add(cyl(0.06,0.06,0.66,dark,sx,0.62,0).rotateX(Math.PI/2));
-  // GAGS de la portada
-  if(s%2===0){ grp.add(eBox(0.7,0.15,0.02,0x0a0a0a,0,2.2,0.235)); grp.add(eBox(0.74,0.03,0.02,0x0a0a0a,0,2.28,0.235)); } // deal-with-it shades
-  if(coin.mcap>=MCAP_CROWN){ grp.add(eBox(0.52,0.14,0.52,0xffcf20,0,2.5,0)); for(let i=-1;i<2;i++) grp.add(eBox(0.09,0.13,0.09,0xffcf20,i*0.17,2.6,0)); } // corona
-  grp.userData.type='bot'; grp.userData.proc=true; grp.userData.lightCol=glow;
-  return grp;
-}
+// (bot cabeza-monitor eliminado: el personaje ahora es GLB limpio via assetFor)
 // skyline de ciudad nocturna (fondo, reemplaza pared vacía)
 function drawSkyline(c,w,h){
   const sky=c.createLinearGradient(0,0,0,h); sky.addColorStop(0,'#140a2e'); sky.addColorStop(1,'#0d0820'); c.fillStyle=sky; c.fillRect(0,0,w,h);
@@ -1008,15 +970,22 @@ function botGlados(){
 
 function spawnApplicant(e){
   clearApplicant();
-  // EL PROTAGONISTA: bot cabeza-monitor voxel con el logo de la coin, cerca y grande.
-  applicantIsModel=false;
-  const g=buildMonitorBot(e);
-  g.userData.proc=true; g.userData.enterX=-1.6;           // entra deslizando desde la cola
-  g.position.set(g.userData.enterX,0,-1.6); g.scale.setScalar(0.92); scene.add(g);
+  const idx=S.done; let g=null; const type=(e.avatar==='bot')?'bot':'human';
+  // Personaje 3D = GLB limpio y bien orientado (mascota de la coin). Fallback procedural.
+  const key = MODELS.ready ? assetFor(e) : null;
+  const asset = key && MODELS.assets[key];
+  if(asset){
+    g=asset.rig; applicantIsModel=true; recolorRig(g,e,idx);
+    g.rotation.set(0, asset.cfg.rot||0, 0);
+    g.position.set(0,0, asset.cfg.z!=null?asset.cfg.z:-1.9); g.scale.setScalar(1);
+    playIdle(g); scene.add(g); g.userData.type=type; g.userData.proc=false;
+  } else {
+    applicantIsModel=false; g=(e.avatar==='bot')?buildBot(e):buildHuman(e);
+    g.userData.proc=true; g.position.set(0,0,-1.7); g.scale.setScalar(0); scene.add(g);
+  }
   applicantGroup=g; g.userData.t=0;
-  // fill del color de la coin (además de la key/rims fijas)
-  const col=g.userData.lightCol||0x33ffbb;
-  applicantLight=new THREE.PointLight(col,1.1,5.5,2); applicantLight.position.set(0,2.0,-1.1); scene.add(applicantLight);
+  if(g.userData.type==='bot'){ const col=g.userData.lightCol||0x33ffbb;
+    applicantLight=new THREE.PointLight(col,0.95,5.4,2); applicantLight.position.set(0,1.9,-1.2); scene.add(applicantLight); }
   buildDocFor(e); updateNumBoard(++numVal);
 }
 function disposeGroup(g){ g.traverse(o=>{ if(o.geometry)o.geometry.dispose(); if(o.material){ if(Array.isArray(o.material))o.material.forEach(m=>m.dispose()); else o.material.dispose(); } }); }
@@ -1038,16 +1007,16 @@ function animate(){
   if(lamp) lamp.intensity=6.8+Math.sin(t*2.1)*0.35;
   if(lightCone) lightCone.material.opacity=0.05+Math.sin(t*2.1)*0.012;
   if(applicantGroup){
-    const u=applicantGroup.userData; const SC=0.92;
-    if(u.t<1){ u.t=Math.min(1,u.t+dt*3.0); const sc=1-Math.pow(1-u.t,3); applicantGroup.scale.setScalar(SC*sc);
-      applicantGroup.position.x=(u.enterX||0)*(1-sc); applicantGroup.position.y=(1-sc)*-0.2; }
-    else { applicantGroup.position.x=Math.sin(t*0.8)*0.02; applicantGroup.position.y=Math.sin(t*1.7)*0.02; applicantGroup.rotation.y=Math.sin(t*0.7)*0.05; }
-    // parpadeo + pupilas + boca del monitor
-    const blink=(t%2.6)>2.5;
-    if(u.eyes) u.eyes.forEach(m=>{ m.scale.y=blink?0.15:1; });
-    if(u.eyeMask) u.eyeMask.forEach(m=>{ m.scale.y=blink?0.5:1; });
-    if(u.mouth){ u.mouth.scale.x=1+Math.sin(t*7)*0.12; }
-    if(applicantLight) applicantLight.intensity=1.1+Math.sin(t*6)*0.2+(Math.random()<0.04?0.4:0);
+    const u=applicantGroup.userData;
+    if(u.t<1){ u.t=Math.min(1,u.t+dt*3.2); const sc=1-Math.pow(1-u.t,3);
+      if(!applicantIsModel) applicantGroup.scale.setScalar(0.98*sc);
+      applicantGroup.position.y=(1-sc)*-0.22; }
+    else { applicantGroup.position.y=Math.sin(t*1.6)*0.012; applicantGroup.rotation.y=Math.sin(t*0.5)*0.05; }
+    // parpadeo/pulso de ojos sólo en el fallback procedural
+    if(u.proc){ const p=0.5+0.5*Math.sin(t*4); if(u.eyes){ const c=u.eyeCol;
+      if(c) u.eyes.forEach(m=>m.material.color.setRGB(c[0]*(0.6+p*0.4),c[1]*(0.6+p*0.4),c[2]*(0.6+p*0.4)));
+      else u.eyes.forEach(m=>m.material.color.setRGB(0.13,0.6+p*0.4,0.5+p*0.5)); } }
+    if(applicantLight) applicantLight.intensity=0.95+Math.sin(t*6)*0.2+(Math.random()<0.04?0.35:0);
   }
   // velas flotantes de decoración
   for(const f of floaters){ const uu=f.userData; f.position.y=uu.by+Math.sin(t*uu.sp+uu.ph)*uu.amp; }
@@ -1240,12 +1209,12 @@ function timeoutApplicant(){
   if(S.locked) return; S.locked=true; setStamps(false);
   S.strikes++; S.timedOut++; S.totalWrong++; S.done++;
   sndBad(); flashVerdict("SLOW","bad","The rep got bored and left. The queue backs up. Strike issued.");
-  siliconPop(-CFG.fineWrong); kick(0.35);
+  pumpPop(-CFG.fineWrong); kick(0.35);
   updateHUD();
   proceedAfter();
 }
 /* ---- juice: pop de silicio + consola INSPECTING ---- */
-function siliconPop(n){ const el=$("siliconPop"); if(!el)return; const pos=n>=0;
+function pumpPop(n){ const el=$("pumpPop"); if(!el)return; const pos=n>=0;
   el.textContent=(pos?"+◈":"−◈")+Math.abs(n); el.style.color=pos?"#28d17a":"#ff3355";
   el.classList.remove("show"); void el.offsetWidth; el.classList.add("show"); }
 function setInspector(state){ const box=$("inspector"), st=$("inspStatus"); if(!box||!st)return;
@@ -1268,14 +1237,14 @@ function stamp(choice){
     burstConfetti(choice);           // luces + papelitos en cada decisión
     if(ok){
       S.money+=CFG.payCorrect; S.correctToday++; S.totalCorrect++;
-      sndGood(); siliconPop(+CFG.payCorrect);
+      sndGood(); pumpPop(+CFG.payCorrect);
       const g = e.win || (choice==="PUMP"
-        ? `${e.ticker} listed. Numbers go up. The machine hums. +silicon.`
-        : `${e.ticker} recycled. Its liquidity melts into silicon for the machine.`);
+        ? `${e.ticker} listed. Numbers go up. The machine hums. +PUMPCOIN.`
+        : `${e.ticker} recycled. Its liquidity is minted into PUMPCOIN for the machine.`);
       flashVerdict(choice,"good", g);
     } else {
       S.money-=CFG.fineWrong; S.wrongToday++; S.totalWrong++; S.strikes++;
-      sndBad(); siliconPop(-CFG.fineWrong);
+      sndBad(); pumpPop(-CFG.fineWrong);
       const msg = (choice==="PUMP")
         ? (e.badPump || `${e.ticker} rugged minutes after you listed it. Holders liquidated. The machine notes your name.`)
         : (e.badRug  || `${e.ticker} was within policy. You recycled a clean coin — it mooned on the next desk. You are exit liquidity.`);
@@ -1352,12 +1321,12 @@ function endDay(){
   card.innerHTML = `
     <div class="stamp2" style="border-color:${survived?'#1c6b3a':'#8a1414'};color:${survived?'#1c6b3a':'#8a1414'}">${survived?'QUOTA MET':'SHORT'}</div>
     <h3>Day ${S.day}</h3>
-    <div style="font-size:11px;color:#6b5f45;letter-spacing:.1em;margin-bottom:8px">DAILY SILICON RECKONING</div>
+    <div style="font-size:11px;color:#6b5f45;letter-spacing:.1em;margin-bottom:8px">DAILY PUMPCOIN RECKONING</div>
     <div class="line"><span>Correct calls (${S.correctToday})</span><span class="pos">+◈${earned}</span></div>
     <div class="line"><span>Wrong / walked (${S.wrongToday+S.timedOut})</span><span class="neg">-◈${fines}</span></div>
-    <div class="line"><span>Silicon before quota</span><span>${beforeRent<0?'-':''}◈${Math.abs(beforeRent)}</span></div>
+    <div class="line"><span>Pumpcoin before quota</span><span>${beforeRent<0?'-':''}◈${Math.abs(beforeRent)}</span></div>
     <div class="line"><span>Daily quota (machine's cut)</span><span class="neg">-◈${S.rent}</span></div>
-    <div class="line total"><span>Silicon</span><span class="${S.money<0?'neg':'pos'}">${S.money<0?'-':''}◈${Math.abs(S.money)}</span></div>
+    <div class="line total"><span>Pumpcoin</span><span class="${S.money<0?'neg':'pos'}">${S.money<0?'-':''}◈${Math.abs(S.money)}</span></div>
     <p class="muted">${survived? 'Quota met. The machine hums, indifferent.' : 'You came up short. The machine does not forgive.'}</p>`;
   openScreen("ledgerScreen");
   $("nextDayBtn").textContent = survived ? (S.day>=SCHEDULE.length? "FINISH ▶" : "NEXT DAY ▶") : "…";
@@ -1371,11 +1340,11 @@ function endDay(){
 function gameOver(reason){
   S.dead=true; clearInterval(S.patT);
   const K={ fired:["THREE STRIKES","THE MINES"], evicted:["QUOTA","MISSED"] };
-  $("endKicker").textContent = reason==="fired"? "Listing desk · reassigned" : "Silicon quota · unmet";
+  $("endKicker").textContent = reason==="fired"? "Listing desk · reassigned" : "Pumpcoin quota · unmet";
   $("endTitle").innerHTML = (K[reason]? `${K[reason][0]}<br>${K[reason][1]}` : "GAME<br>OVER");
   $("endLede").innerHTML = reason==="fired"
-    ? "Three bad calls in one shift. <b>REASSIGNED TO THE MINES.</b> You now hand-sort silicon for the machine that replaced your judgment. It never files complaints."
-    : "You couldn't feed the machine its daily silicon. It reclaims your desk, your chair, and the last of your liquidity. <b>You made it to Day "+S.day+".</b>";
+    ? "Three bad calls in one shift. <b>REASSIGNED TO THE MINES.</b> You now hand-sort PUMPCOIN for the machine that replaced your judgment. It never files complaints."
+    : "You couldn't feed the machine its daily PUMPCOIN. It reclaims your desk, your chair, and the last of your liquidity. <b>You made it to Day "+S.day+".</b>";
   $("restartBtn").textContent="CLOCK IN AGAIN";
   $("endGrade").textContent=grade(); show($("mute"),false);
   show($("hud"),false); show($("ticker"),false); show($("crt"),false); show($("patience"),false); show($("dock"),false);
@@ -1608,6 +1577,7 @@ function drawSocials(c,w,h,e){
 }
 function buildDocFor(e){
   e._candles=makeCandles(e);
+  if(!e._logoCv){ try{ e._logoCv=makeCoinLogo(e).cv; }catch(_){} }
   if(docCtx){ drawCoinSheet(docCtx,512,320,e,null); docTex.tex.needsUpdate=true; }
   if(cvCtx){ drawSocials(cvCtx,384,512,e); cvTex.tex.needsUpdate=true; }
 }
