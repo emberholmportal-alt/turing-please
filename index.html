@@ -381,7 +381,7 @@ const POOL = [
            ["Why do you want access?","because im sick of talking to bots all day, no offense to whatever you are"]],
     win:"Cleared. Muttered something about the queue on the way out.",
     denyHuman:"Complaint filed: a real person was denied. Legal shrugs. Fine issued." }),
-  ent({ id:"nightshift_ron", avatar:"human", isBot:false, useModel:"human", features:{angry:true},
+  ent({ id:"nightshift_ron", avatar:"human", isBot:false, features:{angry:true},
     lines:[["Describe your morning.","didnt have one. worked a double. this better be quick"],
            ["Are you a machine?","do i sound like id put up with this if i was getting paid to"]],
     win:"Cleared. Left without saying goodbye.",
@@ -480,7 +480,7 @@ const POOL = [
            ["Prove it.","I have a favorite color. It is #00FF41."]],
     win:"Denied.",
     grantBot:"A chrome chassis with glowing eyes walked into the human-only forum. Incident logged. Fine issued." }),
-  ent({ id:"scrap_bot", avatar:"bot", isBot:true, style:"scrap", useModel:"robot", features:{},
+  ent({ id:"scrap_bot", avatar:"bot", isBot:true, style:"scrap", features:{},
     lines:[["Describe your morning.","beep boop. i mean, hello, fellow carbon-based friend."],
            ["Why access?","to do the human things. eat the food. feel the emotions."]],
     win:"Denied. Booped on the way out.",
@@ -641,7 +641,24 @@ let renderer, scene, camera, clock, applicantGroup=null, lamp, overhead, deskLig
 let camBaseY=1.30, parX=0, parY=0;
 let applicantRig=null, applicantIsModel=false, applicantLight=null, activeMixer=null, lightCone=null, dust=null, numBoard=null, numVal=0, hum=null, radioLED=null;
 let docGroup=null, docCard=null, cvSheet=null, docTex=null, docCtx=null, cvTex=null, cvCtx=null, docProg=0;
-const MODELS={ robot:null, human:null, ready:false };
+// --- Modelos GLB (CC0 / permisivos) servidos por jsdelivr desde GitHub ---
+const GLB_THREE="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/models/gltf/";
+const GLB_KHR="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/";
+// Personajes riggeados y animados. rot: giro para que miren a la cámara. idle: nombre del clip.
+const CHAR_ASSETS={
+  robotExpressive:{url:GLB_THREE+"RobotExpressive/RobotExpressive.glb", h:2.0, kind:"bot",   rot:Math.PI, z:-1.85, idle:"Idle"},
+  soldier:        {url:GLB_THREE+"Soldier.glb",                          h:1.9, kind:"human", rot:Math.PI, z:-1.95, idle:"Idle"},
+  cesiumMan:      {url:GLB_KHR+"CesiumMan/glTF-Binary/CesiumMan.glb",   h:2.0, kind:"human", rot:Math.PI, z:-1.95, idle:null},
+};
+// estilos "famosos" que se quedan procedurales (no hay GLB con licencia de esos personajes)
+const PROC_STYLES=new Set(['terminator','r2d2','walle','optimus','hal','bender','c3po','marvin','roomba','glados']);
+// Props de escena (estáticos, alta fidelidad PBR).
+const PROP_ASSETS={
+  helmet:{url:GLB_KHR+"DamagedHelmet/glTF-Binary/DamagedHelmet.glb"},   // cabeza sintética confiscada
+  engine:{url:GLB_KHR+"2CylinderEngine/glTF-Binary/2CylinderEngine.glb"},// maquinaria de fondo
+};
+const MODELS={ assets:{}, ready:false };
+const PROPS={};
 function bootMsg(t){ const b=document.getElementById("bootMsg"); if(b) b.textContent=t; }
 
 function initThree(){
@@ -975,13 +992,13 @@ function botGlados(){
 function spawnApplicant(e){
   clearApplicant();
   const idx=S.done; let g=null; const type=(e.avatar==='bot')?'bot':'human';
-  // Modelos GLTF del CDN: sólo para entidades que lo piden (cameo de alta fidelidad).
-  const wantModel = e.useModel && ((e.useModel==='robot'&&MODELS.robot)||(e.useModel==='human'&&MODELS.human));
-  if(wantModel){
-    g = (e.useModel==='robot')?MODELS.robot.rig:MODELS.human.rig;
-    applicantIsModel=true; recolorRig(g,e,idx);
-    g.rotation.set(0, e.useModel==='robot'?ROT_ROBOT:ROT_HUMAN, 0);
-    g.position.set(0,0,-1.85); g.scale.setScalar(1.06);
+  // Modelo GLB profesional para el grueso del elenco; procedural sólo para famosos / si no cargó.
+  const key = MODELS.ready ? assetFor(e) : null;
+  const asset = key && MODELS.assets[key];
+  if(asset){
+    g=asset.rig; applicantIsModel=true; recolorRig(g,e,idx);
+    g.rotation.set(0, asset.cfg.rot||0, 0);
+    g.position.set(0,0, asset.cfg.z!=null?asset.cfg.z:-1.9); g.scale.setScalar(1);
     playIdle(g); scene.add(g); g.userData.type=type; g.userData.proc=false;
   } else {
     applicantIsModel=false; g=(e.avatar==='bot')?buildBot(e):buildHuman(e);
@@ -1026,6 +1043,7 @@ function animate(){
     }
   }
   if(radioLED) radioLED.material.color.setRGB(0.9,0.2+0.3*(0.5+0.5*Math.sin(t*3.1)),0.1);
+  if(PROPS.helmet) PROPS.helmet.rotation.y+=dt*0.35; // la cabeza sintética gira lento (vitrina)
   const target=S.docShown?1:0; docProg+=(target-docProg)*Math.min(1,dt*8);
   if(docGroup){ docGroup.visible=docProg>0.02; const hx=0,hy=0.35,hz=-1.15,sx=0,sy=1.48,sz=0.35;
     docGroup.position.set(hx+(sx-hx)*docProg, hy+(sy-hy)*docProg, hz+(sz-hz)*docProg); docGroup.rotation.x=-0.9+0.9*docProg; docGroup.scale.setScalar(0.9+0.35*docProg); }
@@ -1343,36 +1361,66 @@ function normalizeRig(inner,targetH){
   inner.position.x-=c.x; inner.position.z-=c.z; inner.position.y-=b.min.y;
   const wrap=new THREE.Group(); wrap.add(inner); return {wrap,inner};
 }
-function setupRig(key,gltf,targetH){
-  const r=normalizeRig(gltf.scene,targetH);
+function setupRig(key,gltf,cfg){
+  const r=normalizeRig(gltf.scene,cfg.h);
   r.inner.traverse(o=>{ if(o.isMesh){ o.castShadow=true; o.frustumCulled=false; if(o.material){ o.material=o.material.clone(); if(o.material.color)o.userData.base=o.material.color.clone(); } } });
   const mixer=new THREE.AnimationMixer(r.inner);
-  const idle=THREE.AnimationClip.findByName(gltf.animations,'Idle')||gltf.animations[0];
+  const idle=(cfg.idle&&THREE.AnimationClip.findByName(gltf.animations,cfg.idle))||(gltf.animations&&gltf.animations[0]);
   const idleAction=idle?mixer.clipAction(idle):null;
-  r.wrap.userData={ mixer, idleAction, inner:r.inner, type:key==='robot'?'bot':'human', rig:true };
-  MODELS[key]={ rig:r.wrap, mixer };
+  r.wrap.userData={ mixer, idleAction, inner:r.inner, type:cfg.kind==='bot'?'bot':'human', rig:true };
+  MODELS.assets[key]={ rig:r.wrap, mixer, cfg };
 }
-// Modelos CC0 servidos desde el CDN de jsdelivr (three r128 examples).
-const ROBOT_URL="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/models/gltf/RobotExpressive/RobotExpressive.glb";
-const HUMAN_URL="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/models/gltf/Soldier.glb";
 function loadModels(done){
   let loader; try{ loader=new THREE.GLTFLoader(); }catch(e){ console.warn('no GLTFLoader',e); return done(); }
   if(!loader||!loader.load){ return done(); }
-  let pending=2; const fin=()=>{ if(--pending<=0){ MODELS.ready=!!(MODELS.robot&&MODELS.human); done(); } };
-  const one=(url,key,h)=>{ if(!url){ fin(); return; }
-    try{ loader.load(url,(g)=>{ try{ setupRig(key,g,h); }catch(err){ console.error('setup',key,err);} fin(); },undefined,(err)=>{ console.error('load',key,err); fin(); }); }
-    catch(err){ console.error('throw',key,err); fin(); } };
+  const keys=Object.keys(CHAR_ASSETS); let pending=keys.length;
+  const fin=()=>{ if(--pending<=0){ MODELS.ready=Object.keys(MODELS.assets).length>0; done(); loadProps(loader); } };
   bootMsg('LOADING MODELS…');
-  one(ROBOT_URL,'robot',1.72);
-  one(HUMAN_URL,'human',1.80);
+  keys.forEach(k=>{ const cfg=CHAR_ASSETS[k];
+    try{ loader.load(cfg.url,(g)=>{ try{ setupRig(k,g,cfg); }catch(err){ console.error('setup',k,err);} fin(); },undefined,(err)=>{ console.error('load',k,err); fin(); }); }
+    catch(err){ console.error('throw',k,err); fin(); } });
 }
-const ROBO_PAL=[[0x2f5f8a,0xffa040],[0x3a7a4a,0x7be08a],[0x7a3a7a,0xff70c0],[0x8a5a2a,0xffcf60],[0x2a6a7a,0x40e0d0]];
-const HUM_TINT=[0xffd9c0,0xd8b8ff,0xbfe6ff,0xffe1a8,0xc8ffcf,0xffc0c8,0xe8e2d8];
+// centra + escala un prop a un tamaño objetivo, devuelto en un wrapper posicionable
+function propWrap(o,targetSize){
+  let b=new THREE.Box3().setFromObject(o); const sz=new THREE.Vector3(); b.getSize(sz);
+  o.scale.setScalar(targetSize/(Math.max(sz.x,sz.y,sz.z)||1));
+  b=new THREE.Box3().setFromObject(o); const c=new THREE.Vector3(); b.getCenter(c);
+  o.position.set(-c.x,-c.y,-c.z); const w=new THREE.Group(); w.add(o); return w;
+}
+function loadProps(loader){
+  if(!loader||!loader.load) return;
+  // cabeza sintética confiscada, sobre el escritorio bajo la lámpara
+  try{ loader.load(PROP_ASSETS.helmet.url,(g)=>{ try{
+    g.scene.traverse(m=>{ if(m.isMesh){ m.castShadow=true; m.frustumCulled=false; } });
+    const w=propWrap(g.scene,0.4); w.position.set(-1.05,1.26,1.22); w.rotation.y=-0.5; w.userData.spin=true;
+    PROPS.helmet=w; if(scene) scene.add(w);
+  }catch(e){} },undefined,()=>{}); }catch(e){}
+  // maquinaria industrial en el fondo (repintada oscura para el mood)
+  try{ loader.load(PROP_ASSETS.engine.url,(g)=>{ try{
+    const dk=new THREE.MeshStandardMaterial({color:0x2b3138,metalness:.75,roughness:.5});
+    g.scene.traverse(m=>{ if(m.isMesh){ m.material=dk; m.castShadow=true; } });
+    const w=propWrap(g.scene,1.5); w.position.set(3.0,1.0,-3.1); w.rotation.y=0.6;
+    PROPS.engine=w; if(scene) scene.add(w);
+  }catch(e){} },undefined,()=>{}); }catch(e){}
+}
+// elige el asset GLB para una entidad (null => procedural, p.ej. robots famosos)
+function assetFor(e){
+  if(e.avatar==='bot' && e.style && PROC_STYLES.has(e.style)) return null; // famosos -> procedural (mixto)
+  const kind=(e.avatar==='bot')?'bot':'human';
+  const avail=Object.keys(MODELS.assets).filter(k=>MODELS.assets[k].cfg.kind===kind);
+  if(!avail.length) return null;
+  return avail[seedOf(e)%avail.length];
+}
+// tintes que MULTIPLICAN el color original (preservan sombreado/PBR del modelo)
+const ROBO_TINT=[0x9fc0ff,0xffb070,0x8affa0,0xff8fb0,0x70e0d0,0xd0b0ff,0xffe070];
+const HUM_TINT =[0xffffff,0xffe6d4,0xe6ecff,0xfff0d6,0xe6fff0,0xffe0e8,0xf0e6ff]; // sutil, casi blanco
+const DNI_SKIN =[0xffd9c0,0xd8b8ff,0xbfe6ff,0xffe1a8,0xc8ffcf,0xffc0c8,0xe8e2d8]; // color de foto del DNI
 function recolorRig(wrap,e,idx){ const inner=wrap.userData&&wrap.userData.inner; if(!inner)return;
-  inner.traverse(o=>{ if(o.isMesh&&o.material&&o.material.color){ const nm=(o.material.name||'').toLowerCase();
-    if(wrap.userData.type==='bot'){ const pal=ROBO_PAL[idx%ROBO_PAL.length];
-      if(nm.includes('main')) o.material.color.setHex(pal[1]); else if(nm.includes('black')) o.material.color.setHex(0x0a0a0a); else o.material.color.setHex(pal[0]); }
-    else o.material.color.setHex(HUM_TINT[idx%HUM_TINT.length]); } });
+  const bot=wrap.userData.type==='bot';
+  const tint=new THREE.Color(bot?ROBO_TINT[idx%ROBO_TINT.length]:HUM_TINT[idx%HUM_TINT.length]);
+  inner.traverse(o=>{ if(o.isMesh&&o.material&&o.material.color){
+    const base=o.userData.base||new THREE.Color(0xffffff);
+    o.material.color.copy(base).multiply(tint); } });
 }
 function playIdle(wrap){ const u=wrap.userData; if(u.idleAction){ u.mixer.stopAllAction(); u.idleAction.reset().play(); } activeMixer=u.mixer; }
 function clearApplicant(){ if(applicantLight){ scene.remove(applicantLight); applicantLight=null; }
@@ -1461,7 +1509,7 @@ function drawCV(c,w,h,e){ c.fillStyle='#efe7d2'; c.fillRect(0,0,w,h); c.fillStyl
   let y=100; for(const r of rows){ if(r==='EXPERIENCE'||r==='REFERENCES'){ c.font='bold 13px monospace'; c.fillStyle='#2a2416'; } else { c.font='12px monospace'; c.fillStyle='#3a3320'; } c.fillText(r,20,y); y+=26; } }
 function buildDocFor(e){ const seed=[...e.id].reduce((a,ch)=>a+ch.charCodeAt(0),0);
   e._num=String(100+seed%900)+'-'+String(100+(seed*7)%900); e._iss='20'+(20+seed%6)+'-0'+(1+seed%9)+'-1'+(seed%9);
-  e._exp=(e.cert==='EXPIRED'?'2024-01-01':'20'+(31+seed%5)+'-05-1'+(seed%9)); e._tint='#'+HUM_TINT[seed%HUM_TINT.length].toString(16).padStart(6,'0');
+  e._exp=(e.cert==='EXPIRED'?'2024-01-01':'20'+(31+seed%5)+'-05-1'+(seed%9)); e._tint='#'+DNI_SKIN[seed%DNI_SKIN.length].toString(16).padStart(6,'0');
   if(docCtx){ drawDNI(docCtx,512,320,e,null); docTex.tex.needsUpdate=true; } if(cvCtx){ drawCV(cvCtx,384,512,e); cvTex.tex.needsUpdate=true; } }
 function stampDoc(word){ if(!S.current||!docCtx)return; drawDNI(docCtx,512,320,S.current,word); docTex.tex.needsUpdate=true; }
 
