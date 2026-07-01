@@ -119,17 +119,19 @@
 
   /* ---------- MATCH ---------- */
   #match{ position:absolute; inset:0; z-index:55; display:none; flex-direction:column; align-items:center; justify-content:center; gap:12px; text-align:center; padding:24px;
-    background:radial-gradient(circle at 50% 38%, rgba(32,210,107,.32), rgba(20,10,42,.94)); }
+    background:var(--tinder); }
   #match.on{ display:flex; animation:matchIn .28s ease-out; }
   @keyframes matchIn{ 0%{opacity:0} 100%{opacity:1} }
   .mheart{ font-size:58px; animation:mpop .5s ease-out; }
   @keyframes mpop{ 0%{transform:scale(0) rotate(-20deg)} 60%{transform:scale(1.3)} 100%{transform:scale(1)} }
-  .mtitle{ font-family:var(--disp); font-weight:700; font-size:44px; color:#fff; text-shadow:0 3px 0 rgba(0,0,0,.22); }
-  .mtitle span{ color:#14F195; }
+  .mtitle{ font-family:var(--script); font-weight:700; font-size:60px; color:#fff; line-height:1; text-shadow:0 3px 10px rgba(0,0,0,.25); }
+  .mtitle span{ color:#fff; }
   .mlogo{ width:132px; height:132px; border-radius:50%; border:5px solid #fff; box-shadow:0 12px 34px rgba(0,0,0,.45); object-fit:cover; background:#fff; }
-  .msub{ font-family:var(--disp); font-weight:600; font-size:17px; color:#eafff2; line-height:1.5; }
-  .msub b{ color:#14F195; }
-  .mkeep{ font-family:var(--mono); font-size:12px; letter-spacing:.14em; color:rgba(255,255,255,.7); margin-top:6px; }
+  .msub{ font-family:var(--disp); font-weight:600; font-size:17px; color:#fff; line-height:1.5; }
+  .msub b{ color:#fff; }
+  .mlink{ display:inline-block; margin-top:4px; font-family:var(--mono); font-size:12px; letter-spacing:.06em; font-weight:700; text-decoration:none;
+    color:var(--tinder-flat); background:#fff; padding:10px 18px; border-radius:22px; box-shadow:0 8px 20px rgba(0,0,0,.28); }
+  .mkeep{ font-family:var(--mono); font-size:12px; letter-spacing:.14em; color:rgba(255,255,255,.8); margin-top:6px; }
 
   /* ---------- overlays ---------- */
   .screen{ position:absolute; inset:0; z-index:60; display:none; flex-direction:column; align-items:center; justify-content:center;
@@ -180,9 +182,10 @@
   <!-- MATCH -->
   <div id="match">
     <div class="mheart">🚀</div>
-    <div class="mtitle">IT'S A <span>PUMP!</span></div>
+    <div class="mtitle">It's a Match!</div>
     <img id="matchLogo" class="mlogo" alt="">
     <div class="msub" id="matchSub"></div>
+    <a id="matchLink" class="mlink" target="_blank" rel="noopener" style="display:none"></a>
     <div class="mkeep">keep swiping →</div>
   </div>
 
@@ -437,7 +440,7 @@ function fling(action){
   const s = topCard.querySelector(action==="PUMP"?".stamp.pump":".stamp.rug"); if(s) s.style.opacity=1;
   const isMatch = resolve(action);
   if(isMatch) showMatch(DECK[idx]);
-  setTimeout(()=>{ idx++; draw(); }, isMatch ? 1250 : 300);
+  setTimeout(()=>{ idx++; draw(); }, isMatch ? 1550 : 300);
 }
 
 function resolve(action){
@@ -464,12 +467,21 @@ function resolve(action){
 
 // ---- MATCH: overlay celebratorio al PUMP correcto ----
 function showMatch(c){
-  const m=$("match"), img=$("matchLogo");
+  const m=$("match"), img=$("matchLogo"), link=$("matchLink");
   if(c.logo){ img.style.display=""; img.crossOrigin="anonymous"; img.onerror=()=>{ img.style.display="none"; }; img.src=c.logo; }
   else { img.style.display="none"; }
   $("matchSub").innerHTML = `$${c.t} is going to the moon<br><b>+${REWARD} PUMPCOIN 💊</b>`;
+  // Link a un explorador real — solo a veces, y solo para coins reales (dirección real en el logo)
+  const ca = (c.logo && (c.logo.match(/assets\/([^/]+)\/logo\.png/)||[])[1]) || null;
+  const src = ca ? pick([
+    { label:"View on Pump.fun ↗",       url:"https://pump.fun/coin/"+ca },
+    { label:"View on DexScreener ↗",    url:"https://dexscreener.com/solana/"+ca },
+    { label:"View on CoinMarketCap ↗",  url:"https://coinmarketcap.com/dexscan/solana/"+ca }
+  ]) : null;
+  if(src && Math.random()<0.5){ link.textContent=src.label; link.href=src.url; link.style.display=""; }
+  else { link.style.display="none"; }
   m.classList.add("on");
-  clearTimeout(showMatch._t); showMatch._t=setTimeout(()=>m.classList.remove("on"), 1150);
+  clearTimeout(showMatch._t); showMatch._t=setTimeout(()=>m.classList.remove("on"), 1600);
 }
 
 function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
