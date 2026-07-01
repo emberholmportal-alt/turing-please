@@ -280,12 +280,32 @@ function setHUD(){
 
 function stat(label, val, good){ return `<div class="stat ${good===true?'g':good===false?'b':''}"><span class="l">${label}</span><span class="v">${val}</span></div>`; }
 
+function faceSVG(c){
+  const h=hashStr(c.t); const px=(h%5-2), py=((h>>>3)%5-2);
+  const chad=c.dev>=40, printer=c.mint&&!c.liq, bandit=/RUG/.test(c.t), nervous=!c.dox&&!chad;
+  const whiteEyes=`<circle cx="35" cy="43" r="13" fill="#fff"/><circle cx="65" cy="43" r="13" fill="#fff"/>`;
+  const pupils=`<circle cx="${35+px}" cy="${43+py}" r="6" fill="#20123a"/><circle cx="${65+px}" cy="${43+py}" r="6" fill="#20123a"/>`;
+  const dollarEyes=`<text x="35" y="50" font-size="22" text-anchor="middle" fill="#20123a" font-family="monospace" font-weight="bold">$</text><text x="65" y="50" font-size="22" text-anchor="middle" fill="#20123a" font-family="monospace" font-weight="bold">$</text>`;
+  const shades=`<rect x="18" y="33" width="64" height="17" rx="5" fill="#0a0a0a"/><rect x="22" y="36" width="24" height="11" rx="2" fill="#333"/><rect x="54" y="36" width="24" height="11" rx="2" fill="#333"/>`;
+  const mask=`<rect x="15" y="33" width="70" height="16" rx="4" fill="#0a0a0a" opacity=".9"/><circle cx="35" cy="41" r="4" fill="#fff"/><circle cx="65" cy="41" r="4" fill="#fff"/>`;
+  const smile=`<path d="M37 64 q13 10 26 0" stroke="#20123a" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+  const smirk=`<path d="M37 66 q13 6 26 -2" stroke="#20123a" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+  const wob=`<path d="M37 65 q6 6 13 0 q6 -6 13 0" stroke="#20123a" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+  const moneyMouth=`<rect x="38" y="60" width="24" height="14" rx="3" fill="#20123a"/><rect x="42" y="63" width="4" height="8" fill="#3cea86"/><rect x="48" y="63" width="4" height="8" fill="#3cea86"/><rect x="54" y="63" width="4" height="8" fill="#3cea86"/>`;
+  const sweat=nervous?`<path d="M80 38 q5 9 0 13 q-5 -4 0 -13" fill="#9fd8ff"/>`:'';
+  let eyes, mouth;
+  if(printer){ eyes=dollarEyes; mouth=moneyMouth; }
+  else if(chad){ eyes=shades; mouth=smirk; }
+  else if(bandit){ eyes=whiteEyes+pupils+mask; mouth=smirk; }
+  else { eyes=whiteEyes+pupils; mouth=nervous?wob:smile; }
+  return `<svg viewBox="0 0 100 100" style="width:82%;height:82%">${eyes}${mouth}${sweat}</svg>`;
+}
 function renderCard(c, isTop){
   const el = document.createElement("div"); el.className = "card";
   const col = c.color || hashColor(c.t);
   const logo = c.logo
     ? `<img class="logo" src="${c.logo}" alt="" onerror="this.outerHTML='<div class=\\'logo badge\\' style=\\'background:${col}\\'>${c.t[0]}</div>'">`
-    : `<div class="logo badge" style="background:${col}">${c.t[0]}</div>`;
+    : `<div class="logo badge" style="background:${col}">${faceSVG(c)}</div>`;
   const devShown = c.hide ? "🔒" : c.dev+"%";
   const h = hashStr(c.t);
   const tg = 3+(h%40), x = 5+((h>>>3)%400), prior = 1+(h%4), rug = (c.dev>20||!c.liq||c.mint)? (1+(h%2)) : 0;
