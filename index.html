@@ -549,6 +549,55 @@ $("doneBtn").addEventListener("click", startGame);
 $("btnPump").addEventListener("click", ()=>{ if(!locked) fling("PUMP"); });
 $("btnRug").addEventListener("click", ()=>{ if(!locked) fling("RUG"); });
 
+// ---------- AUTO / DEMO MODE (para livestream) ----------
+// Pasa perfiles solo, decide RUG/PUMP al azar, a veces mira otras "fotos"
+// antes de decidir, y si pierde (3 strikes / fin de mazo) reinicia solo
+// después del cartel. Toggle: autoPlay()  ·  tecla "A"  ·  URL ?auto
+let autoDemo=false, autoT=null;
+function autoPlay(on){
+  on = (on===undefined) ? !autoDemo : !!on;
+  autoDemo = on;
+  clearTimeout(autoT);
+  if(!autoDemo){ console.log("PUMPDER auto: OFF"); return "auto OFF"; }
+  if($("startScreen").classList.contains("on")) startGame();
+  autoT=setTimeout(autoTick, 700);
+  console.log("PUMPDER auto: ON");
+  return "auto ON";
+}
+function autoTick(){
+  if(!autoDemo) return;
+  // fin de partida (RUGGED o mazo terminado) → reinicia tras el cartel
+  if($("overScreen").classList.contains("on") || $("doneScreen").classList.contains("on")){
+    autoT=setTimeout(()=>{ if(autoDemo){ startGame(); autoT=setTimeout(autoTick, 900); } }, 2400);
+    return;
+  }
+  if($("startScreen").classList.contains("on")){ startGame(); autoT=setTimeout(autoTick, 900); return; }
+  // match sostenido con link → tocar para seguir
+  if(matchHold){ autoT=setTimeout(()=>{ if(autoDemo) advance(); autoT=setTimeout(autoTick, 700); }, 1700); return; }
+  // hay una decisión/animación en curso → esperar
+  if(locked || !topCard){ autoT=setTimeout(autoTick, 300); return; }
+  autoBrowseThenSwipe();
+}
+function autoBrowseThenSwipe(){
+  const card = topCard;
+  // ~55% de las veces revisa 1..3 fotos extra antes de decidir
+  let views = Math.random()<0.55 ? 1+Math.floor(Math.random()*3) : 0;
+  const step = ()=>{
+    if(!autoDemo || card!==topCard || locked){ autoT=setTimeout(autoTick, 300); return; }
+    if(views>0 && card._photo < (card._np||1)-1){
+      gotoPhoto(card, card._photo + 1); views--;
+      autoT=setTimeout(step, 650+Math.random()*550);
+    } else {
+      fling(Math.random()<0.5 ? "PUMP" : "RUG");   // decisión al azar
+      autoT=setTimeout(autoTick, 300);
+    }
+  };
+  autoT=setTimeout(step, 500+Math.random()*450);
+}
+window.autoPlay = autoPlay;
+window.addEventListener("keydown", e=>{ if((e.key==="a"||e.key==="A") && !e.metaKey && !e.ctrlKey) autoPlay(); });
+if(/[?&](auto|demo)/i.test(location.search)) autoPlay(true);
+
 // prime directive text on load
 $("directive").innerHTML = POLICY.text;
 setHUD();
