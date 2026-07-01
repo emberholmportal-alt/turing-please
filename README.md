@@ -1,8 +1,15 @@
-# TURING, PLEASE
+# PUMP, PLEASE
 
 Juego tipo *Papers, Please* en el navegador (Three.js, un solo `index.html`).
-Trabajás la última mesa de verificación "Humanity-as-a-Service": leés el chat de
-cada solicitante, lo cotejás con la **directiva** del día y sellás **HUMAN** o **BOT**.
+Sos el único humano en el loop de una Solana convertida en ciudad-casino gobernada
+por máquinas. En el último filtro de listing, cada memecoin manda un representante:
+leés su pitch pero **decidís por la ficha on-chain**. Dos botones circulares —
+**PUMP** (verde, listar) / **RUG** (rojo, reciclar) — y en cada decisión estallan
+luces y papelitos. La máquina corre a silicio; vos la alimentás.
+
+Reskin del motor *Turing, Please* (mismo engine: modelos GLB por CDN, documento 3D
+canvas-textura, oficina 3D, fallback procedural, mobile-first). La fuente de verdad
+del diseño es [`DESIGN.md`](DESIGN.md).
 
 ## Estructura
 ```
@@ -22,17 +29,27 @@ recoloreados por entidad para dar variedad (`CHAR_ASSETS`, `assetFor`, `recolorR
 - **Humanos** → `Soldier.glb`, `CesiumMan.glb`.
 - **Robots genéricos** → `RobotExpressive.glb` (animado, expresivo).
 
-Enfoque **mixto**: los robots de marca (T-800, R2-D2, WALL-E, HAL 9000, Bender,
-C-3PO, Marvin, Roomba, GLaDOS…) no existen como GLB con licencia en ningún CDN, así
-que se dibujan **procedural** (`buildBot` + `botXxx()`, listados en `PROC_STYLES`).
-Si un modelo no carga, todo cae a procedural (no rompe).
+Cada coin tiene un `archetype` (mascotDog/Frog/Cat, devHoodie, devDoxxed, aiBot,
+alienVC, kol, granny, rugger, volumeBot) que se mapea a modelo humano o robot y se
+recolorea. Si un modelo no carga, todo cae a procedural (no rompe).
 
 **Props GLB de escena** (`PROP_ASSETS`, `loadProps`):
 - `DamagedHelmet.glb` → cabeza sintética confiscada, girando sobre el escritorio.
 - `2CylinderEngine.glb` → maquinaria industrial de fondo (repintada oscura).
 
-7 días con reglas que aparecen y se revocan (arms race): DELVE, HELP, ANGER,
-EMDASH, TYPO, EMOJI, VAGUE, SLOP y MORTAL. Reglas y roster: `RULES`, `SCHEDULE`, `POOL`.
+## Jugabilidad (PUMP, PLEASE)
+- Cada solicitante es una **coin** (`COINS`) con métricas on-chain. Las **flags**
+  (`FLAGS` + `coinFlags`) se derivan de las métricas: `DEV_HEAVY`, `LIQ_UNLOCKED`,
+  `MINT_LIVE`, `BUNDLED`, `LOW_HOLDERS`, `SNIPER_TOP`.
+- La **directiva del día** (`SCHEDULE`) dice qué flags obligan a **RUG**. Todo lo
+  que no viola la política se **PUMP**. `correctVerdict` = RUG si hay flag activa,
+  si no PUMP. 5 días, escalada estilo arms-race (día 5 pivotea).
+- La decisión se toma en la **ficha on-chain** (botón DATA → `drawCoinSheet`: candle
+  chart + barra de dev wallet + liquidez/mint/bundle/holders) y los **socials**
+  (`drawSocials`). El pitch miente; la ficha no.
+- Economía en **silicio (◈)**: +Si por acierto, -Si + strike por error. 3 strikes =
+  *reassigned to the mines*. Quota diaria = lo que le debés a la máquina.
+- Cada decisión dispara **confetti + flash de luz** (`burstConfetti`).
 
 ## Correr / previsualizar
 Los modelos y las libs se cargan por URL, así que **conviene servirlo por HTTP**
@@ -44,19 +61,16 @@ Static Site → conectar este repo → **Publish Directory: `.`** → sin build 
 Push a `main` = redeploy automático.
 
 ## Perillas de ajuste (buscá el nombre en `index.html`)
-- Modelos GLB: `CHAR_ASSETS` (personajes: `url`, `h` altura, `rot` giro para mirar a
-  cámara, `z` distancia, `idle` clip) y `PROP_ASSETS` (props de escena).
-- Qué robots quedan procedurales (de marca): el set `PROC_STYLES`.
-- Distancia del solicitante procedural: `g.position.set(0,0,-1.7)` en `spawnApplicant`
-  (más negativo = más lejos). Para GLB, el `z` de cada asset en `CHAR_ASSETS`.
+- Coins y métricas: `COINS`. Umbrales de flags: `FLAGS`.
+- Política por día: `SCHEDULE` (`add`/`remove` de flags). Veredicto: `correctVerdict`.
+- Modelos GLB: `CHAR_ASSETS` (`url`, `h` altura, `rot` giro, `z` distancia, `idle`)
+  y `PROP_ASSETS` (props de escena). Mapa arquetipo→modelo: `assetFor` + `BOT_ARCH`.
+- Economía/dificultad: objeto `CFG` (silicio inicial, +/-, `patienceSec`, strikes).
+- Ficha on-chain y velas: `drawCoinSheet` / `makeCandles`; socials: `drawSocials`.
+- Confetti/luces: `burstConfetti`. Botones: `#human` (PUMP) / `#bot` (RUG) en CSS/HTML.
 - Encuadre de cámara: `camBaseY` y `camera.lookAt(...)` dentro de `animate`.
-- DNI presentado: el vector `sx,sy,sz` (~`0,1.48,0.35`) dentro de `animate`.
-- Dificultad/economía: objeto `CFG` (plata, multas, `patienceSec`, strikes).
-- Reglas por día y roster de solicitantes: `SCHEDULE` y `POOL`.
-- Nuevos personajes: agregá un `ent({...})` a `POOL`; para un robot de marca nuevo,
-  sumá un `botXxx()`, su caso en `buildBot` y el `style` a `PROC_STYLES`.
-- Props / detalles de escritorio (radio, lápices, taza, sellos): en `buildRoom`;
-  posición/escala de los props GLB en `loadProps`.
+- Props / detalles de escritorio (radio, taza, sellos): `buildRoom`; GLB en `loadProps`.
+- Nueva coin: agregá un `coin({...})` a `COINS` (métricas → flags automáticas).
 
 ## Assets
 Modelos GLB con licencia permisiva (three r128 examples + Khronos glTF-Sample-Models),
