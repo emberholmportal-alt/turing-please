@@ -9,9 +9,12 @@ Tinder), con temática memecoins. Todo DOM + CSS + SVG, mobile-first, 60fps.
   nombres de personas reales. Memecoins reales = su **logo real**. Métricas = sátira.
 
 ## Estética (fiel a una dating app)
-- Fondo limpio y claro; cards blancas con esquinas muy redondeadas y sombra suave;
-  tipografía sans redondeada (Fredoka); botones circulares grandes; mucho aire.
-- Acentos: PUMP `#20D26B`, RUG `#FF3B5C`, Solana violeta `#9945FF`.
+- **Degradé rojo/coral típico de Tinder** de fondo: `linear-gradient(120deg,#FD267D →
+  #FF4B6E → #FF6036)` (`--tinder`). HUD/policy/botones en blanco translúcido encima.
+- Cards con esquinas muy redondeadas y sombra suave; tipografía sans redondeada
+  (Fredoka); botones circulares grandes; mucho aire.
+- Acentos sobre la card: PUMP `#20D26B`, RUG `#FF3B5C`. Cursiva de match: Dancing Script.
+- Logo **Pumpder** propio (mark tipo "paleta/popsicle" en SVG) en header y menú.
 
 ## Patrón replicado
 1. **Card full-bleed**: la foto (logo real, o cara generada para ficticias) ocupa casi
@@ -24,8 +27,10 @@ Tinder), con temática memecoins. Todo DOM + CSS + SVG, mobile-first, 60fps.
    vuela. Sellos PUMP (verde, derecha) / RUG (rojo, izquierda) con opacidad progresiva.
 4. **Botones** circulares like/nope: RUG (💀 rojo) y PUMP (🚀 verde, más grande), con
    sombra y hundimiento al presionar.
-5. **MATCH** (`showMatch`): al PUMP correcto, overlay "IT'S A PUMP!" con cohete, logo y
-   +PUMPCOIN antes de la próxima card.
+5. **MATCH** (`showMatch`): al PUMP correcto, overlay sobre degradé Tinder con
+   **"It's a Match!" en cursiva** (Dancing Script), cohete, logo y +PUMPCOIN. A veces
+   (no siempre) aparece un botón-link real a Pump.fun / DexScreener / CoinMarketCap
+   (dirección extraída del logo de Trust Wallet).
 6. **HUD + directiva** del día arriba; economía **PUMPCOIN** (+6 acierto / −8 error);
    3 strikes = NGMI; nota final S/A/B/C/F.
 
