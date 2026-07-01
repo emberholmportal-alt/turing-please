@@ -100,26 +100,46 @@
     display:flex; gap:8px; align-items:stretch;
     background:linear-gradient(#0d1114 0%, #060809 100%); border-top:1px solid var(--steel);
     box-shadow:0 -6px 20px rgba(0,0,0,.5); }
-  /* botones circulares PUMP (verde) / RUG (rojo) */
-  .stamp{ flex:0 0 auto; width:min(27vw,124px); height:min(27vw,124px); border:none; border-radius:50%; cursor:pointer;
-    font-family:var(--stencil); font-weight:800; letter-spacing:.06em; font-size:clamp(18px,6vw,26px);
-    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; position:relative; overflow:hidden;
-    transition:transform .07s, filter .1s; }
-  .stamp:active{ transform:translateY(3px) scale(.94); }
-  .stamp::after{ content:""; position:absolute; inset:0; border-radius:50%; border:2px solid rgba(255,255,255,.18); }
-  .stamp small{ font-size:9px; letter-spacing:.08em; opacity:.8; font-family:var(--mono); font-weight:600; }
-  #human{ background:radial-gradient(circle at 38% 30%, #3df089, #12934a 68%, #0a5c2e); color:#eafff1;
-    box-shadow:0 6px 0 #073d1e, 0 0 26px rgba(40,220,120,.4), inset 0 2px 8px rgba(255,255,255,.3); }
-  #bot{ background:radial-gradient(circle at 38% 30%, #ff6a6a, #c31818 68%, #7a0e0e); color:#ffeded;
-    box-shadow:0 6px 0 #4d0808, 0 0 26px rgba(255,60,60,.4), inset 0 2px 8px rgba(255,255,255,.25); }
-  .tools{ flex:1 1 auto; max-width:170px; margin:0 auto; display:flex; flex-direction:column; gap:8px; }
-  .tools button{ flex:1; background:#1a1430; color:var(--sol2); border:1px solid #3a2f5a; border-radius:9px;
-    font-family:var(--stencil); font-weight:800; font-size:12px; letter-spacing:.06em; cursor:pointer; }
+  /* botones ARCADE chunky PUMP / RUG (estilo portada) */
+  .stamp{ flex:0 0 auto; width:min(34vw,175px); height:88px; border:none; border-radius:14px; cursor:pointer;
+    font-family:var(--stencil); font-weight:800; letter-spacing:.04em;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; position:relative; overflow:hidden;
+    transition:transform .06s, box-shadow .06s, filter .1s; }
+  .stamp .big{ font-size:clamp(22px,7vw,34px); line-height:1; text-shadow:0 2px 0 rgba(0,0,0,.35); }
+  .stamp small{ font-size:10px; letter-spacing:.1em; opacity:.85; font-family:var(--mono); font-weight:700; }
+  .stamp::before{ content:""; position:absolute; left:0; right:0; top:0; height:42%; border-radius:14px 14px 40% 40%;
+    background:linear-gradient(rgba(255,255,255,.4), rgba(255,255,255,0)); pointer-events:none; } /* highlight bisel */
+  .stamp:active{ transform:translateY(6px); }
+  #human{ background:linear-gradient(#3bec84,#17a850 62%,#0e7c39); color:#06331a;
+    box-shadow:0 8px 0 #0a5e2c, 0 0 30px rgba(40,220,120,.45), inset 0 2px 0 rgba(255,255,255,.5); }
+  #human:active{ box-shadow:0 2px 0 #0a5e2c, 0 0 30px rgba(40,220,120,.55), inset 0 2px 0 rgba(255,255,255,.4); }
+  #bot{ background:linear-gradient(#ff6a6a,#e12b3f 62%,#a5131f); color:#3a0208;
+    box-shadow:0 8px 0 #6e0812, 0 0 30px rgba(255,60,60,.45), inset 0 2px 0 rgba(255,255,255,.45); }
+  #bot:active{ box-shadow:0 2px 0 #6e0812, 0 0 30px rgba(255,60,60,.55), inset 0 2px 0 rgba(255,255,255,.35); }
+  .tools{ flex:1 1 auto; max-width:230px; margin:0 auto; display:flex; flex-direction:column; gap:6px; justify-content:center; }
+  /* consola central INSPECTING con ecualizador (como el panel de la portada) */
+  #inspector{ background:#07060f; border:2px solid #241a3a; border-radius:9px; padding:5px 8px; box-shadow:inset 0 0 14px rgba(20,241,149,.15); }
+  #inspStatus{ font-family:var(--mono); font-weight:800; font-size:11px; letter-spacing:.1em; color:var(--sol2); text-align:center; text-shadow:0 0 8px rgba(20,241,149,.6); }
+  #inspStatus.listed{ color:#28d17a; } #inspStatus.recycled{ color:#ff3355; text-shadow:0 0 8px rgba(255,60,60,.7); }
+  #inspBars{ display:flex; align-items:flex-end; justify-content:center; gap:3px; height:20px; margin-top:3px; }
+  #inspBars i{ width:6px; background:linear-gradient(#14f195,#0e7c39); border-radius:1px; animation:eq .9s ease-in-out infinite; }
+  #inspBars i:nth-child(2n){ animation-duration:.7s; } #inspBars i:nth-child(3n){ animation-duration:1.1s; } #inspBars i:nth-child(4n){ animation-duration:.6s; }
+  @keyframes eq{ 0%,100%{ height:20%; } 50%{ height:100%; } }
+  #inspector.done #inspBars i{ animation:none; height:35%; }
+  .toolRow{ display:flex; gap:6px; }
+  .toolRow button{ flex:1; background:#1a1430; color:var(--sol2); border:1px solid #3a2f5a; border-radius:8px; padding:8px 4px;
+    font-family:var(--stencil); font-weight:800; font-size:12px; letter-spacing:.05em; cursor:pointer; }
   #docsBtn{ color:#c9a0ff; }
-  .stamp:disabled, .tools button:disabled{ filter:grayscale(.7) brightness(.6); pointer-events:none; }
+  .stamp:disabled{ filter:grayscale(.6) brightness(.62); pointer-events:none; }
+  .toolRow button:disabled{ filter:grayscale(.7) brightness(.6); pointer-events:none; }
   #confetti{ position:fixed; inset:0; z-index:45; pointer-events:none; }
   .title .accent{ color:var(--sol2); text-shadow:0 0 18px rgba(20,241,149,.4); }
   .accent2{ color:var(--sol2); font-weight:800; }
+  /* pop flotante de silicio */
+  #siliconPop{ position:fixed; left:50%; top:44%; transform:translateX(-50%); z-index:46; pointer-events:none; opacity:0;
+    font-family:var(--stencil); font-weight:800; font-size:min(11vw,58px); letter-spacing:.02em; text-shadow:0 3px 12px rgba(0,0,0,.6); }
+  #siliconPop.show{ animation:sipop 1.1s ease-out; }
+  @keyframes sipop{ 0%{ opacity:0; transform:translate(-50%,10px) scale(.7); } 18%{ opacity:1; transform:translate(-50%,-6px) scale(1.1); } 70%{ opacity:1; } 100%{ opacity:0; transform:translate(-50%,-52px) scale(1); } }
 
   /* ====== REGLAMENTO ====== */
   #book{ position:fixed; inset:0; z-index:40; background:rgba(3,5,6,.82); backdrop-filter:blur(3px);
@@ -242,12 +262,15 @@
 
 <div id="nudge">Tap 📊 DATA to read the on-chain sheet</div>
 <div id="dock" class="hidden">
-  <button id="human" class="stamp">PUMP<small>list it</small></button>
+  <button id="human" class="stamp"><span class="big">PUMP ↑</span><small>list it</small></button>
   <div class="tools">
-    <button id="rulesBtn">▤ POLICY</button>
-    <button id="docsBtn">📊 DATA</button>
+    <div id="inspector"><div id="inspStatus">INSPECTING…</div><div id="inspBars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+    <div class="toolRow">
+      <button id="rulesBtn">▤ POLICY</button>
+      <button id="docsBtn">📊 DATA</button>
+    </div>
   </div>
-  <button id="bot" class="stamp">RUG<small>recycle it</small></button>
+  <button id="bot" class="stamp"><span class="big">RUG 💀</span><small>recycle it</small></button>
 </div>
 
 <!-- Reglamento -->
@@ -261,6 +284,7 @@
 <!-- Veredicto -->
 <div id="flash"><div id="flashStamp">—</div></div>
 <div id="note" class="verdictNote"></div>
+<div id="siliconPop"></div>
 
 <!-- Menú -->
 <div id="menu" class="screen open">
@@ -542,7 +566,7 @@ function initThree(){
   renderer.toneMappingExposure = 1.05;
 
   scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x05070a, 0.085);
+  scene.fog = new THREE.FogExp2(0x120a26, 0.07);   // niebla violeta, menos densa
 
   camera = new THREE.PerspectiveCamera(52, window.innerWidth/window.innerHeight, 0.1, 100);
   camera.position.set(0, camBaseY, 3.15);
@@ -629,6 +653,10 @@ function buildRoom(){
   // cola en la niebla
   for(let i=0;i<7;i++){ const th=1.5+Math.random()*0.5; const q=box(0.5,th,0.4, mat(0x0b0f12), (Math.random()-.5)*2.4, th/2, -4.4-i*0.85); q.rotation.y=(Math.random()-.5)*0.5; g.add(q);
     if(Math.random()<0.4) g.add(box(0.03,0.25,0.03, mat(0x0b0f12), q.position.x, th+0.12, q.position.z)); }
+  // skyline de ciudad nocturna (fondo) — emisivo para que brille
+  const sky=new THREE.Mesh(new THREE.PlaneGeometry(15,5.6), new THREE.MeshBasicMaterial({map:canvasTex(1024,320,drawSkyline).tex})); sky.position.set(0,2.6,-3.36); g.add(sky);
+  // densidad de oficina + íconos cripto reales de decoración
+  addOfficeJunk(g); loadCryptoDecor(g);
   // cono de luz
   const cone=new THREE.Mesh(new THREE.ConeGeometry(0.9,2.4,20,1,true), new THREE.MeshBasicMaterial({color:0xffcf8a,transparent:true,opacity:0.05,side:THREE.DoubleSide,depthWrite:false}));
   cone.position.set(0.6,0.9,-0.4); cone.rotation.x=Math.PI*0.06; cone.rotation.z=0.25; lightCone=cone; g.add(cone);
@@ -636,14 +664,17 @@ function buildRoom(){
 }
 
 function buildLights(){
-  scene.add(new THREE.AmbientLight(0x241a3a,0.55));                                  // ambiente violeta frío
-  overhead=new THREE.PointLight(0x9945ff,0.9,24,2); overhead.position.set(0,4.3,-1.2); scene.add(overhead); // neón violeta Solana
-  lamp=new THREE.SpotLight(0xffb066,2.6,13,Math.PI/4.2,0.5,1.4); lamp.position.set(1.45,1.66,0.85); lamp.target.position.set(0,1.5,-1.7);
+  scene.add(new THREE.AmbientLight(0x3a2a5a,0.85));                                 // ambiente violeta (menos murk)
+  overhead=new THREE.PointLight(0x9945ff,1.0,24,2); overhead.position.set(0,4.3,-1.2); scene.add(overhead); // neón violeta Solana
+  // KEY fuerte y cálida sobre el solicitante => POP contra el fondo (arregla "invisible")
+  lamp=new THREE.SpotLight(0xfff0d8,7.0,10,Math.PI/4.5,0.45,1.2); lamp.position.set(0.6,3.2,0.6); lamp.target.position.set(0,1.7,-1.6);
   lamp.castShadow=true; lamp.shadow.mapSize.set(1024,1024); lamp.shadow.camera.near=0.5; lamp.shadow.camera.far=9; lamp.shadow.bias=-0.0006;
   scene.add(lamp); scene.add(lamp.target);
-  const rim=new THREE.PointLight(0x14f195,0.5,10,2); rim.position.set(0,3.2,-1.0); scene.add(rim);         // rim verde Solana
-  const green=new THREE.PointLight(0x7a2fd0,0.4,7,2); green.position.set(-1.78,2.0,-1.0); scene.add(green); // acento violeta
-  deskLight=new THREE.PointLight(0xb98fff,0.32,9,2); deskLight.position.set(0,2.0,1.6); scene.add(deskLight);
+  // rim lights de color a los costados del bot => contorno neón
+  const rimG=new THREE.PointLight(0x14f195,2.2,6,2); rimG.position.set(-1.5,1.9,-1.0); scene.add(rimG); // verde Solana
+  const rimV=new THREE.PointLight(0x9945ff,2.2,6,2); rimV.position.set(1.5,1.9,-1.0); scene.add(rimV);  // violeta Solana
+  const fill=new THREE.PointLight(0x22e0ff,0.6,10,2); fill.position.set(0,2.6,-0.4); scene.add(fill);     // fill cyan tenue
+  deskLight=new THREE.PointLight(0xb98fff,0.5,9,2); deskLight.position.set(0,2.0,1.6); scene.add(deskLight);
 }
 
 /* ------------------------------------------ CONSTRUCCIÓN DE SOLICITANTES */
@@ -659,6 +690,124 @@ function emat(c){ return new THREE.MeshBasicMaterial({color:c}); }
 function eBox(w,h,d,c,x,y,z){ const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d), emat(c)); m.position.set(x,y,z); return m; }
 function eBall(r,c,x,y,z){ const m=new THREE.Mesh(new THREE.SphereGeometry(r,12,12), emat(c)); m.position.set(x,y,z); return m; }
 function cyl(rt,rb,h,material,x,y,z){ const m=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,16), material); m.position.set(x,y,z); return m; }
+
+/* ============================================================ ART OVERHAUL
+   Estética portada: chunky voxel, color saturado, bot cabeza-monitor con logo. */
+function hashStr(s){ let h=2166136261; s=(s||'x'); for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619);} return h>>>0; }
+const HSL=(h,s,l)=>new THREE.Color().setHSL(((h%360)+360)%360/360,s,l);
+// logo por-coin generado en canvas (color desde hash + monograma + forma)
+function makeCoinLogo(coin){
+  const cv=document.createElement('canvas'); cv.width=cv.height=128; const c=cv.getContext('2d');
+  const hsh=hashStr(coin.id), hue=hsh%360, hue2=(hue+38)%360, shape=hsh%3;
+  c.translate(64,64);
+  const grd=c.createLinearGradient(-52,-52,52,52); grd.addColorStop(0,`hsl(${hue},88%,58%)`); grd.addColorStop(1,`hsl(${hue2},85%,40%)`); c.fillStyle=grd;
+  c.beginPath();
+  if(shape===0){ c.arc(0,0,54,0,7); }
+  else if(shape===1){ c.moveTo(0,-58); c.lineTo(58,0); c.lineTo(0,58); c.lineTo(-58,0); c.closePath(); }
+  else { for(let i=0;i<6;i++){ const a=Math.PI/3*i-Math.PI/2,x=Math.cos(a)*56,y=Math.sin(a)*56; i?c.lineTo(x,y):c.moveTo(x,y);} c.closePath(); }
+  c.fill(); c.lineWidth=7; c.strokeStyle='rgba(255,255,255,.35)'; c.stroke();
+  const letters=(coin.ticker.replace(/[^A-Za-z]/g,'').slice(0,2).toUpperCase())||'X';
+  c.font='bold 60px monospace'; c.textAlign='center'; c.textBaseline='middle';
+  c.fillStyle='rgba(0,0,0,.45)'; c.fillText(letters,2,4); c.fillStyle='#fff'; c.fillText(letters,0,2);
+  const tex=new THREE.CanvasTexture(cv); if(THREE.sRGBEncoding)tex.encoding=THREE.sRGBEncoding; tex.needsUpdate=true;
+  return {cv,tex,hue};
+}
+// EL PROTAGONISTA: bot cabeza-monitor voxel, recoloreado por coin, con el logo en la pantalla
+const MCAP_CROWN=800000;
+function buildMonitorBot(coin){
+  const grp=new THREE.Group(); const s=seedOf(coin);
+  const logo=makeCoinLogo(coin); coin._logoCv=logo.cv; const hue=logo.hue;
+  const bmat =new THREE.MeshStandardMaterial({color:HSL(hue,.62,.52),metalness:.35,roughness:.5});
+  const bmat2=new THREE.MeshStandardMaterial({color:HSL(hue,.62,.40),metalness:.35,roughness:.5}); // bisel (tono claro)
+  const dark =mat(0x141020,{metalness:.5,roughness:.5});
+  const glow=HSL(hue,.9,.6).getHex();
+  // torso chunky con biseles
+  grp.add(Object.assign(box(0.88,0.86,0.52,bmat,0,1.18,0),{castShadow:true}));
+  grp.add(box(0.92,0.14,0.56,bmat2,0,1.55,0)); grp.add(box(0.92,0.14,0.56,bmat2,0,0.82,0));
+  grp.add(eBox(0.58,0.28,0.02,0x0c0a16,0,1.2,0.27)); grp.add(eBall(0.06,glow,0,1.2,0.29));
+  grp.add(box(0.16,0.12,0.16,dark,0,1.66,0));
+  // cabeza MONITOR (la estrella)
+  grp.add(Object.assign(box(0.96,0.72,0.44,dark,0,2.06,0),{castShadow:true}));
+  grp.add(box(1.0,0.76,0.06,bmat2,0,2.06,-0.2));
+  grp.add(eBox(0.82,0.6,0.01,HSL(hue,.7,.16).getHex(),0,2.06,0.2)); // fondo pantalla emisivo
+  const screen=new THREE.Mesh(new THREE.PlaneGeometry(0.8,0.58), new THREE.MeshBasicMaterial({map:logo.tex,transparent:true}));
+  screen.position.set(0,2.06,0.221); grp.add(screen); grp.userData.screen=screen;
+  // ojos pixel + boca (encima del logo)
+  const el=eBox(0.12,0.12,0.02,0x0c0a16,-0.22,2.18,0.225), er=eBox(0.12,0.12,0.02,0x0c0a16,0.22,2.18,0.225); grp.add(el); grp.add(er);
+  const pL=eBox(0.06,0.06,0.02,0xffffff,-0.22,2.18,0.23), pR=eBox(0.06,0.06,0.02,0xffffff,0.22,2.18,0.23); grp.add(pL); grp.add(pR);
+  const mouth=eBox(0.24,0.05,0.02,0x0c0a16,0,1.95,0.225); grp.add(mouth);
+  grp.userData.eyes=[pL,pR]; grp.userData.eyeMask=[el,er]; grp.userData.mouth=mouth; grp.userData.eyeCol=[1,1,1];
+  // antena
+  grp.add(cyl(0.02,0.02,0.2,bmat2,0,2.5,0)); grp.add(eBall(0.05,glow,0,2.62,0));
+  // brazos + manos
+  grp.add(box(0.16,0.6,0.2,bmat,-0.57,1.15,0)); grp.add(box(0.16,0.6,0.2,bmat,0.57,1.15,0));
+  grp.add(box(0.22,0.16,0.26,bmat2,-0.57,0.85,0.02)); grp.add(box(0.22,0.16,0.26,bmat2,0.57,0.85,0.02));
+  // base / orugas
+  grp.add(box(0.92,0.24,0.62,dark,0,0.66,0)); grp.add(box(0.96,0.1,0.66,bmat2,0,0.56,0));
+  for(const sx of [-0.32,0.32]) grp.add(cyl(0.06,0.06,0.66,dark,sx,0.62,0).rotateX(Math.PI/2));
+  // GAGS de la portada
+  if(s%2===0){ grp.add(eBox(0.7,0.15,0.02,0x0a0a0a,0,2.2,0.235)); grp.add(eBox(0.74,0.03,0.02,0x0a0a0a,0,2.28,0.235)); } // deal-with-it shades
+  if(coin.mcap>=MCAP_CROWN){ grp.add(eBox(0.52,0.14,0.52,0xffcf20,0,2.5,0)); for(let i=-1;i<2;i++) grp.add(eBox(0.09,0.13,0.09,0xffcf20,i*0.17,2.6,0)); } // corona
+  grp.userData.type='bot'; grp.userData.proc=true; grp.userData.lightCol=glow;
+  return grp;
+}
+// skyline de ciudad nocturna (fondo, reemplaza pared vacía)
+function drawSkyline(c,w,h){
+  const sky=c.createLinearGradient(0,0,0,h); sky.addColorStop(0,'#140a2e'); sky.addColorStop(1,'#0d0820'); c.fillStyle=sky; c.fillRect(0,0,w,h);
+  const winC=['#22e0ff','#ff3ea5','#ffb020','#14f195','#9945ff'];
+  let x=0; while(x<w){ const bw=30+Math.floor(Math.random()*60), bh=h*(0.32+Math.random()*0.55); const bx=x, by=h-bh;
+    c.fillStyle=`hsl(${250+Math.random()*40},40%,${8+Math.random()*8}%)`; c.fillRect(bx,by,bw,bh);
+    for(let wy=by+8; wy<h-6; wy+=10){ for(let wx=bx+5; wx<bx+bw-5; wx+=9){ if(Math.random()<0.5){ c.fillStyle=winC[(Math.random()*winC.length)|0]; c.globalAlpha=0.5+Math.random()*0.5; c.fillRect(wx,wy,4,5); c.globalAlpha=1; } } }
+    x+=bw+4; }
+}
+// densidad de escritorio/oficina (latas, teclado, joystick, tacho, notas, figuritas, monitores, velas flotantes)
+let floaters=[];
+function stickyTex(txt,bg){ return canvasTex(128,128,(c,w,h)=>{ c.fillStyle=bg||'#ffe23a'; c.fillRect(0,0,w,h); c.fillStyle='#2a2410'; c.font='bold 22px monospace'; c.textAlign='center'; txt.split('\n').forEach((l,i)=>c.fillText(l,w/2,44+i*30)); }); }
+function addOfficeJunk(g){
+  // latas de energizante apiladas (izquierda del escritorio)
+  const canCols=[0x14f195,0xff3355,0x22e0ff,0xffb020];
+  for(let i=0;i<4;i++){ const cx=-1.98+(i%2)*0.12, cy=1.06+Math.floor(i/2)*0.2; g.add(cyl(0.05,0.05,0.17, mat(canCols[i%4],{metalness:.6,roughness:.3}), cx,cy,0.95)); }
+  // taza NGMI (etiqueta) sobre la taza existente
+  g.add(planeTex(0.14,0.09, stickyTex('NGMI','#eceff2'), 0.78,1.1,1.405));
+  // teclado mecánico
+  g.add(Object.assign(box(0.6,0.05,0.22, mat(0x1a1626,{metalness:.4}), 0.15,1.0,1.62),{castShadow:true}));
+  for(let r=0;r<3;r++) for(let k=0;k<8;k++) g.add(eBox(0.05,0.02,0.02, r===2&&k===3?0x14f195:0x2a2440, -0.08+k*0.07,1.03,1.55+r*0.045));
+  // joystick arcade
+  g.add(cyl(0.09,0.11,0.05, mat(0x201a30,{metalness:.5}), -0.55,1.0,1.55)); g.add(cyl(0.02,0.02,0.16, mat(0x9aa4ac,{metalness:.8}), -0.55,1.08,1.55)); g.add(eBall(0.045,0xff3355,-0.55,1.17,1.55));
+  // cables con glow bajo el escritorio
+  for(const cz of [1.0,1.6]){ g.add(eBox(1.6,0.015,0.015, 0x9945ff, 0,0.82,cz)); }
+  g.add(eBox(0.015,0.015,0.9, 0x14f195, -1.1,0.82,1.3));
+  // tacho desbordado de "rugueados" (papeles + monedas arrugadas)
+  g.add(cyl(0.22,0.18,0.34, mat(0x20263a,{metalness:.4}), 1.95,0.9,-0.2));
+  for(let i=0;i<8;i++){ const a=Math.random()*6.28, r=Math.random()*0.16; const geo=new THREE.DodecahedronGeometry(0.06+Math.random()*0.04,0); const m=new THREE.Mesh(geo, mat(i%3?0xd8cfb2:0xbdb49a)); m.position.set(1.95+Math.cos(a)*r,1.06+Math.random()*0.12,-0.2+Math.sin(a)*r); m.rotation.set(Math.random()*3,Math.random()*3,0); g.add(m); }
+  // sticky notes en el mostrador
+  g.add(planeTex(0.18,0.18, stickyTex('wen\nlambo?','#ffe23a'), 1.55,0.98,1.4));
+  g.add(planeTex(0.18,0.18, stickyTex('few\nunder-\nstand','#7fe0ff'), -1.15,0.98,1.42));
+  // posters cripto en las paredes laterales
+  g.add(planeTex(0.9,0.5, canvasTex(256,140,(c,w,h)=>{ c.fillStyle='#1a0e33'; c.fillRect(0,0,w,h); c.fillStyle='#14f195'; c.font='bold 26px monospace'; c.textAlign='center'; c.fillText('BUILT ON',w/2,58); c.fillText('HOPIUM',w/2,94); }), -2.9,2.4,-1.28).rotateY(0.5));
+  g.add(planeTex(0.9,0.5, canvasTex(256,140,(c,w,h)=>{ c.fillStyle='#2a0f1a'; c.fillRect(0,0,w,h); c.fillStyle='#ff3ea5'; c.font='bold 22px monospace'; c.textAlign='center'; c.fillText('NO UTILITY',w/2,58); c.fillText('ONLY VIBES',w/2,92); }), 2.9,2.4,-1.28).rotateY(-0.5));
+  // figurita Doge voxel con lentes (callback portada)
+  const doge=new THREE.Group();
+  doge.add(box(0.16,0.14,0.14, mat(0xe0a83a),0,0.08,0)); doge.add(box(0.14,0.12,0.12, mat(0xf0c060),0,0.2,0.02));
+  doge.add(eBox(0.13,0.04,0.02,0x0a0a0a,0,0.22,0.09)); // lentes
+  doge.add(box(0.05,0.06,0.04, mat(0xe0a83a),-0.06,0.3,0)); doge.add(box(0.05,0.06,0.04, mat(0xe0a83a),0.06,0.3,0));
+  doge.position.set(1.15,1.0,1.28); g.add(doge);
+  // monitores extra con mini-chart
+  for(const mx of [[-1.95,2.0,-0.4,0.5],[2.0,1.9,-0.5,-0.5]]){ const scr=canvasTex(128,96,(c,w,h)=>{ c.fillStyle='#07060f'; c.fillRect(0,0,w,h); let px=h*0.6; for(let i=0;i<16;i++){ const up=Math.random()<0.55; c.fillStyle=up?'#28d17a':'#e0473a'; const nh=px+(up?-1:1)*(4+Math.random()*8); c.fillRect(i*8,Math.min(px,nh),5,Math.abs(nh-px)+2); px=nh; } });
+    const mon=planeTex(0.5,0.38, scr, mx[0],mx[1],-1.3); mon.rotation.y=mx[3]; g.add(mon); g.add(box(0.56,0.44,0.04, mat(0x14101f),mx[0],mx[1],-1.33).rotateY(mx[3])); }
+  // velas flotantes decorativas (verdes/rojas) que hacen bob
+  floaters=[];
+  for(let i=0;i<10;i++){ const up=Math.random()<0.5; const m=eBox(0.06,0.14+Math.random()*0.14,0.06, up?0x28d17a:0xe0473a, (Math.random()-0.5)*5, 1.6+Math.random()*1.8, -2.4-Math.random()*1.5);
+    m.userData={ph:Math.random()*6.28, amp:0.05+Math.random()*0.08, sp:0.4+Math.random()*0.6, by:m.position.y}; floaters.push(m); g.add(m); }
+}
+// íconos cripto REALES (spothq, CC0) como decoración de pared. crossOrigin => sin taint.
+function loadCryptoDecor(g){
+  const tl=new THREE.TextureLoader(); tl.setCrossOrigin('anonymous');
+  const syms=['btc','eth','sol','bnb','ada','xrp','ltc','doge']; const base='https://cdn.jsdelivr.net/gh/spothq/cryptocurrency-icons@master/128/color/';
+  syms.forEach((s,i)=>{ tl.load(base+s+'.png', tex=>{ if(THREE.sRGBEncoding)tex.encoding=THREE.sRGBEncoding;
+    const col=i%4, rowY=2.9-Math.floor(i/4)*0.34; const m=new THREE.Mesh(new THREE.PlaneGeometry(0.26,0.26), new THREE.MeshBasicMaterial({map:tex,transparent:true}));
+    m.position.set(-3.0+col*0.34, rowY, -1.27); g.add(m); }, undefined, ()=>{}); });
+}
 
 // ------------------------------------------------------------ HUMANOS
 function buildHuman(e){
@@ -859,22 +1008,15 @@ function botGlados(){
 
 function spawnApplicant(e){
   clearApplicant();
-  const idx=S.done; let g=null; const type=(e.avatar==='bot')?'bot':'human';
-  // Modelo GLB profesional para el grueso del elenco; procedural sólo para famosos / si no cargó.
-  const key = MODELS.ready ? assetFor(e) : null;
-  const asset = key && MODELS.assets[key];
-  if(asset){
-    g=asset.rig; applicantIsModel=true; recolorRig(g,e,idx);
-    g.rotation.set(0, asset.cfg.rot||0, 0);
-    g.position.set(0,0, asset.cfg.z!=null?asset.cfg.z:-1.9); g.scale.setScalar(1);
-    playIdle(g); scene.add(g); g.userData.type=type; g.userData.proc=false;
-  } else {
-    applicantIsModel=false; g=(e.avatar==='bot')?buildBot(e):buildHuman(e);
-    g.userData.proc=true; g.position.set(0,0,-1.7); g.scale.setScalar(0); scene.add(g);
-  }
+  // EL PROTAGONISTA: bot cabeza-monitor voxel con el logo de la coin, cerca y grande.
+  applicantIsModel=false;
+  const g=buildMonitorBot(e);
+  g.userData.proc=true; g.userData.enterX=-1.6;           // entra deslizando desde la cola
+  g.position.set(g.userData.enterX,0,-1.6); g.scale.setScalar(0.92); scene.add(g);
   applicantGroup=g; g.userData.t=0;
-  if(g.userData.type==='bot'){ const col=g.userData.lightCol||0x33ffbb;
-    applicantLight=new THREE.PointLight(col,0.85,5.2,2); applicantLight.position.set(0,1.75,-1.35); scene.add(applicantLight); }
+  // fill del color de la coin (además de la key/rims fijas)
+  const col=g.userData.lightCol||0x33ffbb;
+  applicantLight=new THREE.PointLight(col,1.1,5.5,2); applicantLight.position.set(0,2.0,-1.1); scene.add(applicantLight);
   buildDocFor(e); updateNumBoard(++numVal);
 }
 function disposeGroup(g){ g.traverse(o=>{ if(o.geometry)o.geometry.dispose(); if(o.material){ if(Array.isArray(o.material))o.material.forEach(m=>m.dispose()); else o.material.dispose(); } }); }
@@ -884,32 +1026,31 @@ function onResize(){
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-let flickT=0;
+let flickT=0, shakeT=0;
+function kick(a){ shakeT=Math.max(shakeT,a); }   // screen-shake
 function animate(){
   requestAnimationFrame(animate);
   try{
   const dt=clock?Math.min(clock.getDelta(),0.05):0.016, t=clock?clock.elapsedTime:0;
   if(activeMixer) activeMixer.update(dt);
   flickT+=dt;
-  if(overhead) overhead.intensity=0.85+Math.sin(t*13)*0.05+(Math.random()<0.02?-0.45:0);
-  if(lamp) lamp.intensity=2.7+Math.sin(t*2.1)*0.08;
+  if(overhead) overhead.intensity=0.95+Math.sin(t*13)*0.05+(Math.random()<0.02?-0.4:0);
+  if(lamp) lamp.intensity=6.8+Math.sin(t*2.1)*0.35;
   if(lightCone) lightCone.material.opacity=0.05+Math.sin(t*2.1)*0.012;
   if(applicantGroup){
-    const u=applicantGroup.userData;
-    if(u.t<1){ u.t=Math.min(1,u.t+dt*3.4); const sc=1-Math.pow(1-u.t,3); if(!applicantIsModel) applicantGroup.scale.setScalar(0.98*sc); applicantGroup.position.y=(1-sc)*-0.25; }
-    else applicantGroup.position.y=0;
-    if(u.type==='human'){ if(!applicantIsModel){ applicantGroup.position.y+=Math.sin(t*1.6)*0.01; applicantGroup.rotation.y=Math.sin(t*0.5)*0.05; } }
-    else {
-      if(u.proc){
-        const p=0.5+0.5*Math.sin(t*4);
-        if(u.eyes){ const c=u.eyeCol; if(c) u.eyes.forEach(m=>m.material.color.setRGB(c[0]*(0.6+p*0.4),c[1]*(0.6+p*0.4),c[2]*(0.6+p*0.4)));
-          else u.eyes.forEach(m=>m.material.color.setRGB(0.13,0.6+p*0.4,0.5+p*0.5)); }
-        if(u.spin){ applicantGroup.rotation.y+=dt*1.4; }               // roomba gira
-        else if(!u.still){ applicantGroup.rotation.y=Math.sin(t*0.7)*0.06; } // idle robótico (hal queda quieto)
-      }
-      if(applicantLight) applicantLight.intensity=0.85+Math.sin(t*6)*0.18+(Math.random()<0.05?0.35:0);
-    }
+    const u=applicantGroup.userData; const SC=0.92;
+    if(u.t<1){ u.t=Math.min(1,u.t+dt*3.0); const sc=1-Math.pow(1-u.t,3); applicantGroup.scale.setScalar(SC*sc);
+      applicantGroup.position.x=(u.enterX||0)*(1-sc); applicantGroup.position.y=(1-sc)*-0.2; }
+    else { applicantGroup.position.x=Math.sin(t*0.8)*0.02; applicantGroup.position.y=Math.sin(t*1.7)*0.02; applicantGroup.rotation.y=Math.sin(t*0.7)*0.05; }
+    // parpadeo + pupilas + boca del monitor
+    const blink=(t%2.6)>2.5;
+    if(u.eyes) u.eyes.forEach(m=>{ m.scale.y=blink?0.15:1; });
+    if(u.eyeMask) u.eyeMask.forEach(m=>{ m.scale.y=blink?0.5:1; });
+    if(u.mouth){ u.mouth.scale.x=1+Math.sin(t*7)*0.12; }
+    if(applicantLight) applicantLight.intensity=1.1+Math.sin(t*6)*0.2+(Math.random()<0.04?0.4:0);
   }
+  // velas flotantes de decoración
+  for(const f of floaters){ const uu=f.userData; f.position.y=uu.by+Math.sin(t*uu.sp+uu.ph)*uu.amp; }
   if(radioLED) radioLED.material.color.setRGB(0.9,0.2+0.3*(0.5+0.5*Math.sin(t*3.1)),0.1);
   if(PROPS.helmet) PROPS.helmet.rotation.y+=dt*0.35; // la cabeza sintética gira lento (vitrina)
   const target=S.docShown?1:0; docProg+=(target-docProg)*Math.min(1,dt*8);
@@ -918,6 +1059,7 @@ function animate(){
   if(dust){ const a=dust.userData.arr,n=dust.userData.count; for(let i=0;i<n;i++){ a[i*3+1]-=dt*0.12; if(a[i*3+1]<0)a[i*3+1]+=4.6; a[i*3]+=Math.sin((t+i)*0.5)*0.0006; } dust.geometry.attributes.position.needsUpdate=true; }
   camera.position.x+=((parX*0.35)-camera.position.x)*0.06;
   camera.position.y+=((camBaseY-parY*0.2)-camera.position.y)*0.06;
+  if(shakeT>0){ shakeT=Math.max(0,shakeT-dt); const s=shakeT*0.12; camera.position.x+=(Math.random()-0.5)*s; camera.position.y+=(Math.random()-0.5)*s; }
   camera.lookAt(0,1.5,-2);
   renderer.render(scene,camera);
   }catch(e){ if(!animate._e){ animate._e=1; console.error(e); } }
@@ -1070,6 +1212,7 @@ function nextApplicant(){
   if(S.done>=S.quota){ endDay(); return; }
   S.current = S.queue[S.done];
   S.locked=false; hideDocs();
+  setInspector(null);              // consola vuelve a INSPECTING…
   spawnApplicant(S.current);
   renderTranscript(S.current);
   setStamps(true);
@@ -1096,10 +1239,20 @@ function resumePatience(){ clearInterval(S.patT); S.patT=setInterval(tickPatienc
 function timeoutApplicant(){
   if(S.locked) return; S.locked=true; setStamps(false);
   S.strikes++; S.timedOut++; S.totalWrong++; S.done++;
-  sndBad(); flashVerdict("SLOW","bad","The applicant got tired of waiting and left. The queue is backing up. Strike issued.");
+  sndBad(); flashVerdict("SLOW","bad","The rep got bored and left. The queue backs up. Strike issued.");
+  siliconPop(-CFG.fineWrong); kick(0.35);
   updateHUD();
   proceedAfter();
 }
+/* ---- juice: pop de silicio + consola INSPECTING ---- */
+function siliconPop(n){ const el=$("siliconPop"); if(!el)return; const pos=n>=0;
+  el.textContent=(pos?"+◈":"−◈")+Math.abs(n); el.style.color=pos?"#28d17a":"#ff3355";
+  el.classList.remove("show"); void el.offsetWidth; el.classList.add("show"); }
+function setInspector(state){ const box=$("inspector"), st=$("inspStatus"); if(!box||!st)return;
+  st.classList.remove("listed","recycled"); box.classList.remove("done");
+  if(state==="PUMP"){ st.textContent="LISTED ✓"; st.classList.add("listed"); box.classList.add("done"); }
+  else if(state==="RUG"){ st.textContent="RECYCLED 💀"; st.classList.add("recycled"); box.classList.add("done"); }
+  else { st.textContent="INSPECTING…"; } }
 
 function stamp(choice){
   if(S.locked || !S.current) return;
@@ -1109,18 +1262,20 @@ function stamp(choice){
   const e=S.current; const correct = correctVerdict(e);
   sndStamp();
   const ok = (choice===correct);
+  setInspector(choice);              // la consola central hace flip LISTED/RECYCLED
+  if(choice==="RUG") kick(0.55); else kick(0.2);
   setTimeout(()=>{
     burstConfetti(choice);           // luces + papelitos en cada decisión
     if(ok){
       S.money+=CFG.payCorrect; S.correctToday++; S.totalCorrect++;
-      sndGood();
+      sndGood(); siliconPop(+CFG.payCorrect);
       const g = e.win || (choice==="PUMP"
         ? `${e.ticker} listed. Numbers go up. The machine hums. +silicon.`
         : `${e.ticker} recycled. Its liquidity melts into silicon for the machine.`);
       flashVerdict(choice,"good", g);
     } else {
       S.money-=CFG.fineWrong; S.wrongToday++; S.totalWrong++; S.strikes++;
-      sndBad();
+      sndBad(); siliconPop(-CFG.fineWrong);
       const msg = (choice==="PUMP")
         ? (e.badPump || `${e.ticker} rugged minutes after you listed it. Holders liquidated. The machine notes your name.`)
         : (e.badRug  || `${e.ticker} was within policy. You recycled a clean coin — it mooned on the next desk. You are exit liquidity.`);
@@ -1388,7 +1543,8 @@ function drawCoinSheet(c,w,h,e,stamp){
   const g=c.createLinearGradient(0,0,w,0); g.addColorStop(0,'#3a0f6e'); g.addColorStop(1,'#0f6b8a'); c.fillStyle=g; c.fillRect(0,0,w,46);
   c.fillStyle='#e9e0ff'; c.textAlign='left'; c.font='bold 24px monospace'; c.fillText(e.ticker,14,31);
   c.fillStyle='#b9a9ff'; c.font='12px monospace'; c.fillText(e.name.toUpperCase(),16,44);
-  c.textAlign='right'; c.fillStyle='#7fe0c0'; c.font='11px monospace'; c.fillText('ON-CHAIN SHEET',w-12,40); c.textAlign='left';
+  c.textAlign='right'; c.fillStyle='#7fe0c0'; c.font='11px monospace'; c.fillText('ON-CHAIN SHEET',w-58,40); c.textAlign='left';
+  if(e._logoCv){ try{ c.drawImage(e._logoCv, w-50, 4, 40, 40); }catch(_){} } // logo generado de la coin
   // gráfico de velas
   const gx=14, gy=58, gw=286, gh=112;
   c.fillStyle='#07060f'; c.fillRect(gx,gy,gw,gh); c.strokeStyle='#241a3a'; c.strokeRect(gx,gy,gw,gh);

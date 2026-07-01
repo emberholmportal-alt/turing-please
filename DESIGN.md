@@ -76,6 +76,26 @@ scorear por precio público, preferir coins muertas/graduadas.
 - Fase 3: cola en vivo desde Pump.fun (snapshot en el backend de Render).
 - Fase 4: scoring veredicto-vs-realidad + leaderboard (el hook viral).
 
+### Art overhaul (visual, sobre Fase 1)
+Objetivo: que el juego se vea como la portada (chunky voxel, saturado, denso, jugoso).
+- **Protagonista**: bot cabeza-monitor voxel (`buildMonitorBot`), recoloreado por coin
+  (hash del ticker → HSL), con el **logo generado** de la coin en la pantalla
+  (`makeCoinLogo`), ojos pixel + boca, gags de portada (shades "deal with it", corona
+  si mcap alto). Reemplaza los GLB humanos como solicitante (los GLB quedan de decoración).
+- **Luz**: key cálida fuerte desde arriba-frente + rims verde/violeta a los costados →
+  el bot POP-ea; menos murk (ambient arriba); pantallas emisivas.
+- **Botones ARCADE** rectangulares chunky (PUMP ↑ / RUG 💀) con bisel y hundimiento;
+  **consola INSPECTING** con ecualizador que hace flip a LISTED/RECYCLED.
+- **Juice**: confetti + flash, pop flotante `+◈N` / `−◈N`, screen-shake (`kick`),
+  parpadeo/boca del bot, velas flotantes, DAYS SINCE A RUG.
+- **Oficina densa**: latas, teclado, joystick, cables con glow, tacho de "rugueados",
+  sticky notes ("wen lambo?", "few understand"), posters ("BUILT ON HOPIUM", "NO UTILITY
+  ONLY VIBES"), figurita Doge, monitores extra con charts, **skyline** de ciudad al fondo.
+- **Íconos cripto reales** (spothq, CC0) por jsdelivr con `crossOrigin='anonymous'` como
+  decoración de pared (`loadCryptoDecor`); fallback silencioso si no cargan.
+- **TODO (bloqueado)**: caras de *RUG WORLD CUP* (assets de Ariel) para público/tacho/
+  hall of shame — falta la URL del repo; hook listo para enchufarlas igual que spothq.
+
 ### Estado Fase 1
 Data (`COINS`+flags) · reglas (`SCHEDULE`/`correctVerdict`) · botones circulares
 PUMP/RUG + confetti · ficha (`drawCoinSheet` con velas) + socials · registry de modelos ·
