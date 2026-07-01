@@ -422,7 +422,7 @@ function attachDrag(card){
     if(dx>TH) fling("PUMP");
     else if(dx<-TH) fling("RUG");
     else {
-      card.style.transform=""; card.querySelectorAll(".stamp").forEach(s=>s.style.opacity=0);
+      card.style.transform=""; card.querySelectorAll(".stamp").forEach(s=>{ s.style.transition="opacity .5s ease"; s.style.opacity=0; setTimeout(()=>{s.style.transition="";},520); });
       if(Math.abs(dx)<8 && e){ const r=card.getBoundingClientRect(); const left = e.clientX < r.left + r.width*0.4; gotoPhoto(card, card._photo + (left?-1:1)); }
     }
     dx=0;
@@ -440,7 +440,7 @@ function fling(action){
   const s = topCard.querySelector(action==="PUMP"?".stamp.pump":".stamp.rug"); if(s) s.style.opacity=1;
   const isMatch = resolve(action);
   if(isMatch) showMatch(DECK[idx]);
-  setTimeout(()=>{ idx++; draw(); }, isMatch ? 1550 : 300);
+  setTimeout(()=>{ idx++; draw(); }, isMatch ? 1550 : 700);
 }
 
 function resolve(action){
